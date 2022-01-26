@@ -116,11 +116,13 @@ func readNumber(l *lex.State) lex.StateFn {
 func readRawChar(l *lex.State) *rune {
 	r := l.Next()
 	if r == '\\' {
-		switch r := l.Next(); r {
+		switch rNext := l.Next(); rNext {
 		case 'r':
 			r = '\r'
 		case 'n':
 			r = '\n'
+		case '"':
+			r = '"'
 		case '\\':
 			r = '\\'
 		case lex.EOF:
@@ -152,8 +154,12 @@ func readString(l *lex.State) lex.StateFn {
 	assertChar(l, '"')
 	value := ""
 	for r := l.Peek(); r != '"' && r != lex.EOF; r = l.Peek() {
-		value += string(r)
-		l.Next()
+		// Escaped double quote should be skipped here
+		readRes := readRawChar(l)
+		if readRes == nil {
+			return nil
+		}
+		value += string(*readRes)
 	}
 	if l.Next() == lex.EOF {
 		l.Errorf(l.Pos(), "Unexpected EOF. You should end string with double quote")

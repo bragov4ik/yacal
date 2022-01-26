@@ -60,6 +60,10 @@ func TestElements(t *testing.T) {
 		parsesTo("false", false),
 		parsesTo("null", NULL),
 
+		parsesTo("\"\"", ""),
+		parsesTo("\"alola\"", "alola"),
+		parsesTo("\"al\\\"ola\"", "al\"ola"),
+
 		parsesTo("a4", id("a4")),
 		parsesTo("()", LB, RB),
 		parsesTo("(     )", LB, RB),
@@ -67,6 +71,8 @@ func TestElements(t *testing.T) {
 		parsesTo("(+12)", LB, 12, RB),
 		parsesTo("(setq x 2)", LB, id("setq"), id("x"), 2, RB),
 		parsesTo("(setq x (quote y))", LB, id("setq"), id("x"), LB, id("quote"), id("y"), RB, RB),
+		parsesTo("(repeat \":kae:\" 1000)", LB, id("repeat"), ":kae:", 1000, RB),
+		parsesTo("(append \"a\\\"bo\" \"ba\\\"\")", LB, id("append"), "a\"bo", "ba\"", RB),
 	}
 
 	for _, tc := range tests {
