@@ -1,15 +1,121 @@
 package lexer
 
-type Span struct {
-	lineNum          int64
-	posBegin, posEnd int
+import (
+	"strconv"
+	"unicode"
+
+	"github.com/db47h/lex"
+
+	"github.com/bragov4ik/yacal/pkg/lexer/tok"
+)
+
+func skipComment(l *lex.State) lex.StateFn {
+	for r := l.Next(); r != '\n'; r = l.Next() {
+		if r == lex.EOF {
+			l.Emit(l.Pos(), tok.EOF, &tok.Eof{})
+			return nil
+		}
+	}
+	return nil
 }
 
-type Token interface {
-	Span() Span
+func readIdentInner(l *lex.State) string {
+	value := ""
+	for r := l.Peek(); !unicode.IsSpace(r) && r != lex.EOF && r != ')'; r = l.Peek() {
+		value += string(r)
+		l.Next()
+	}
+	return value
 }
 
-func tokenize(source_text string) []Token {
-	result := make([]Token, 0, 0)
-	return result
+func readIdent(l *lex.State) lex.StateFn {
+	l.StartToken(l.Pos())
+	switch ident := readIdentInner(l); ident {
+	case "true":
+		b := true
+		l.Emit(l.TokenPos(), tok.BOOL, &b)
+	case "false":
+		b := false
+		l.Emit(l.TokenPos(), tok.IDENT, &b)
+	case "null":
+		l.Emit(l.TokenPos(), tok.NULL, &tok.Null{})
+	default:
+		l.Emit(l.TokenPos(), tok.IDENT, &ident)
+	}
+	return nil
 }
+
+func readInt(l *lex.State) string {
+	value := ""
+	for r := l.Peek(); unicode.IsDigit(r); r = l.Peek() {
+		value += string(r)
+		l.Next()
+	}
+	return value
+}
+
+func readNumber(l *lex.State) lex.StateFn {
+	l.StartToken(l.Pos())
+	value := readInt(l)
+
+	switch r := l.Peek(); {
+	case r == '.':
+		l.Next()
+		value += readInt(l)
+
+		if r = l.Peek(); r != lex.EOF || unicode.IsSpace(r) || r != ')' {
+			l.Errorf(l.TokenPos(), "Real numbers should end with space, eof, or right bracket, not with `%v'", string(r))
+			return nil
+		}
+
+		f, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			l.Errorf(l.TokenPos(), "Error parsing real number: %v", err)
+		} else {
+			l.Emit(l.TokenPos(), tok.REAL, &f)
+		}
+	case unicode.IsSpace(r) || r == lex.EOF || r == ')':
+		i, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			l.Errorf(l.TokenPos(), "Error parsing integer: %v", err)
+		} else {
+			l.Emit(l.TokenPos(), tok.INT, &i)
+		}
+	default:
+		l.Errorf(l.TokenPos(), "Integers should end with space, eof, or right bracket, not with `%v'", string(r))
+	}
+
+	return nil
+}
+
+func readTok(l *lex.State) lex.StateFn {
+	l.StartToken(l.Pos())
+	switch r := l.Next(); {
+	case r == lex.EOF:
+		l.Emit(l.TokenPos(), tok.EOF, &tok.Eof{})
+	case r == '(':
+		l.Emit(l.TokenPos(), tok.LBRACE, &tok.LBrace{})
+	case r == ')':
+		l.Emit(l.TokenPos(), tok.LBRACE, &tok.RBrace{})
+	case r == '\'':
+		c := l.Next()
+		if quote := l.Next(); quote != '\'' {
+			l.Errorf(l.TokenPos(), "After character symbol should end with quote, not with `%v'", string(quote))
+		}
+		l.Emit(l.TokenPos(), tok.LETTER, &c)
+	case unicode.IsDigit(r):
+		l.Backup()
+		return readNumber
+	case r == '/' && l.Peek() == '/':
+		skipComment(l)
+	case unicode.IsSpace(r):
+		// skipping spaces
+		break
+	default:
+		l.Backup()
+		return readIdent
+	}
+	return nil
+}
+
+func New(f *lex.File) *lex.Lexer { return lex.NewLexer(f, readTok) }
