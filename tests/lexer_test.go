@@ -44,13 +44,15 @@ func TestElements(t *testing.T) {
 
 		{input: "\"\"", tokens: []lex.Token{tok.STRING}},
 		{input: "\"alola\"", tokens: []lex.Token{tok.STRING}},
+		{input: "\"al\\\"ola\"", tokens: []lex.Token{tok.STRING}},
 
 		{input: "()", tokens: []lex.Token{tok.LBRACE, tok.RBRACE}},
 		{input: "(     )", tokens: []lex.Token{tok.LBRACE, tok.RBRACE}},
 		{input: "(+ 1 2)", tokens: []lex.Token{tok.LBRACE, tok.IDENT, tok.INT, tok.INT, tok.RBRACE}},
 		{input: "(+12)", tokens: []lex.Token{tok.LBRACE, tok.INT, tok.RBRACE}},
 		{input: "(setq x 2)", tokens: []lex.Token{tok.LBRACE, tok.IDENT, tok.IDENT, tok.INT, tok.RBRACE}},
-		{input: "(append \"abo\" \"ba\")", tokens: []lex.Token{tok.LBRACE, tok.IDENT, tok.STRING, tok.STRING, tok.RBRACE}},
+		{input: "(repeat \":kae:\" 1000)", tokens: []lex.Token{tok.LBRACE, tok.IDENT, tok.STRING, tok.INT, tok.RBRACE}},
+		{input: "(append \"a\\\"bo\" \"ba\\\"\")", tokens: []lex.Token{tok.LBRACE, tok.IDENT, tok.STRING, tok.STRING, tok.RBRACE}},
 	} {
 		l := lexer.New(lex.NewFile("tmp", strings.NewReader(tc.input)))
 		tokens := ReadTokens(l)

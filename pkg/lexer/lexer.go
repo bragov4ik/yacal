@@ -96,6 +96,10 @@ func readString(l *lex.State) lex.StateFn {
 		l.Errorf(l.TokenPos(), "String should start with \", not with '%v'", string(r))
 	}
 	for r := l.Next(); r != '"'; r = l.Next() {
+		if r == '\\' && l.Peek() == '"' {
+			// Escaped double quote
+			l.Next()
+		}
 		if r == lex.EOF {
 			l.Errorf(l.TokenPos(), "Couldn't find end of string, reached EOF", string(r))
 		}
