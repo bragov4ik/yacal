@@ -20,9 +20,12 @@ type testCase struct {
 }
 
 func copyTok(tok interface{}) interface{} {
-	v := reflect.Value{}
-	reflect.Copy(v, reflect.ValueOf(tok))
-	return v.Interface()
+	v := reflect.New(reflect.TypeOf(tok))
+	fmt.Printf("v: %#v, tok: %#v, valueof: %#v\n", v, tok, reflect.ValueOf(tok))
+	fmt.Printf("v: %#v, v.elem: %#v\n", v, v.Elem())
+	v.Elem().Set(reflect.ValueOf(tok))
+	fmt.Printf("(after assignment) v: %#v, v.elem: %#v\n", v, v.Elem())
+	return v.Elem().Interface()
 }
 
 func readTokens(t *testing.T, l *lex.Lexer) ([]interface{}, error) {
@@ -72,7 +75,7 @@ func TestElements(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Discover error (%v) while parsing \"%v\"", err, tc.input)
 		}
-		pp.Printf("%v %v\n", tokens, tc.tokens)
+		pp.Printf("%v\n%v\n\n", tokens, tc.tokens)
 		if !reflect.DeepEqual(tokens, tc.tokens) {
 			t.Fatalf("\"%v\" should be tokenized to %v, but got %v", tc.input, tc.tokens, tokens)
 		}
