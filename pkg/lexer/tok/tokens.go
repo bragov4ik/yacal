@@ -19,6 +19,8 @@ const (
 	BOOL
 	// Native rune type in golang
 	LETTER
+	// String
+	STRING
 	NULL
 )
 

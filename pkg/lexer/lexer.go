@@ -88,6 +88,23 @@ func readNumber(l *lex.State) lex.StateFn {
 	return nil
 }
 
+func readString(l *lex.State) lex.StateFn {
+	l.StartToken(l.Pos())
+	value := ""
+	r := l.Next()
+	if r != '"' {
+		l.Errorf(l.TokenPos(), "String should start with \", not with '%v'", string(r))
+	}
+	for r := l.Next(); r != '"'; r = l.Next() {
+		if r == lex.EOF {
+			l.Errorf(l.TokenPos(), "Couldn't find end of string, reached EOF", string(r))
+		}
+		value += string(r)
+	}
+	l.Emit(l.TokenPos(), tok.STRING, &value)
+	return nil
+}
+
 func readTok(l *lex.State) lex.StateFn {
 	l.StartToken(l.Pos())
 	switch r := l.Next(); {
@@ -103,6 +120,9 @@ func readTok(l *lex.State) lex.StateFn {
 			l.Errorf(l.TokenPos(), "After character symbol should end with quote, not with `%v'", string(quote))
 		}
 		l.Emit(l.TokenPos(), tok.LETTER, &c)
+	case r == '"':
+		l.Backup()
+		return readString
 	// TODO: what if number starts with + or - sign?
 	case unicode.IsDigit(r):
 		l.Backup()
