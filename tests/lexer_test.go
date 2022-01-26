@@ -11,7 +11,7 @@ import (
 	"github.com/bragov4ik/yacal/pkg/lexer/tok"
 )
 
-func ReadTokens(l lex.Lexer) (tokens []lex.Token) {
+func ReadTokens(l *lex.Lexer) (tokens []lex.Token) {
 	tokens = []lex.Token{}
 	for ty, _, _ := l.Lex(); ty != tok.EOF; ty, _, _ = l.Lex() {
 		tokens = append(tokens, ty)
@@ -49,7 +49,7 @@ func TestElements(t *testing.T) {
 		{input: "(setq x 2)", tokens: []lex.Token{tok.LBRACE, tok.IDENT, tok.IDENT, tok.INT, tok.RBRACE}},
 	} {
 		l := lexer.New(lex.NewFile("tmp", strings.NewReader(tc.input)))
-		tokens := ReadTokens(*l)
+		tokens := ReadTokens(l)
 		if !reflect.DeepEqual(tokens, tc.tokens) {
 			t.Errorf("string %v should be tokenized to %v, but got %v", tc.input, tc.tokens, tokens)
 		}
