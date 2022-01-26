@@ -1,0 +1,22 @@
+// literals
+5
+-5
++5
+5.0
+-5.0
++5.0
+0123
+false
+true
+null
+"abcd!@#$%^&*()_="
+
+// atoms
+(setq a4 0)
+a4
+'a4
+
+// lists
+'(5 1 2 a4)
+'(null (null (null)))
+'(4 minus times divide)

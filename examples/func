@@ -1,0 +1,1 @@
+(func CubeIt (x) (times (times x x) x))

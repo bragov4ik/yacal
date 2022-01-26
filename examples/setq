@@ -1,0 +1,4 @@
+(setq x 5)
+(setq y (plus 1 2))
+(setq z null)
+(setq t '(plus minus times divide))
