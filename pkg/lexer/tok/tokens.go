@@ -9,8 +9,9 @@ const (
 
 	LBRACE
 	RBRACE
-	// Native string type in golang
 	IDENT
+	NULL
+
 	// Native int type in golang
 	INT
 	// Native float64 type in golang
@@ -19,11 +20,16 @@ const (
 	BOOL
 	// Native rune type in golang
 	LETTER
-	NULL
+	// Native string type in golang
+	STRING
 )
 
-type LBrace struct{}
-type RBrace struct{}
-type Quote struct{}
-type Null struct{}
-type Eof struct{}
+type (
+	LBrace struct{}
+	RBrace struct{}
+	Null   struct{}
+	Eof    struct{}
+	Ident  struct{ string }
+)
+
+func NewIdent(s string) Ident { return Ident{s} }
