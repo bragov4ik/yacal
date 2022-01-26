@@ -206,16 +206,24 @@ func readTok(l *lex.State) lex.StateFn {
 	case r == ')':
 		l.Emit(l.TokenPos(), tok.RBRACE, tok.RBrace{})
 	case r == '"':
-		l.UnreadRune()
+		if err := l.UnreadRune(); err != nil {
+			l.Errorf(l.Pos(), "Unexpected error: %v", err)
+		}
 		return readString
 	case r == '\'':
-		l.UnreadRune()
+		if err := l.UnreadRune(); err != nil {
+			l.Errorf(l.Pos(), "Unexpected error: %v", err)
+		}
 		return readChar
 	case unicode.IsDigit(r) || ((r == '+' || r == '-') && unicode.IsDigit(l.Peek())):
-		l.UnreadRune()
+		if err := l.UnreadRune(); err != nil {
+			l.Errorf(l.Pos(), "Unexpected error: %v", err)
+		}
 		return readNumber
 	default:
-		l.UnreadRune()
+		if err := l.UnreadRune(); err != nil {
+			l.Errorf(l.Pos(), "Unexpected error: %v", err)
+		}
 		return readIdent
 	}
 	return nil
