@@ -36,7 +36,7 @@ func readIdent(l *lex.State) lex.StateFn {
 		l.Emit(l.TokenPos(), tok.BOOL, &b)
 	case "false":
 		b := false
-		l.Emit(l.TokenPos(), tok.IDENT, &b)
+		l.Emit(l.TokenPos(), tok.BOOL, &b)
 	case "null":
 		l.Emit(l.TokenPos(), tok.NULL, &tok.Null{})
 	default:
@@ -61,10 +61,10 @@ func readNumber(l *lex.State) lex.StateFn {
 	switch r := l.Peek(); {
 	case r == '.':
 		l.Next()
-		value += readInt(l)
+		value += string(r) + readInt(l)
 
-		if r = l.Peek(); r != lex.EOF || unicode.IsSpace(r) || r != ')' {
-			l.Errorf(l.TokenPos(), "Real numbers should end with space, eof, or right bracket, not with `%v'", string(r))
+		if r = l.Peek(); !(r == lex.EOF || unicode.IsSpace(r) || r == ')') {
+			l.Errorf(l.TokenPos(), "Real numbers should end with space, eof, or right bracket, not with '%v'", string(r))
 			return nil
 		}
 
@@ -96,13 +96,14 @@ func readTok(l *lex.State) lex.StateFn {
 	case r == '(':
 		l.Emit(l.TokenPos(), tok.LBRACE, &tok.LBrace{})
 	case r == ')':
-		l.Emit(l.TokenPos(), tok.LBRACE, &tok.RBrace{})
+		l.Emit(l.TokenPos(), tok.RBRACE, &tok.RBrace{})
 	case r == '\'':
 		c := l.Next()
 		if quote := l.Next(); quote != '\'' {
 			l.Errorf(l.TokenPos(), "After character symbol should end with quote, not with `%v'", string(quote))
 		}
 		l.Emit(l.TokenPos(), tok.LETTER, &c)
+	// TODO: what if number starts with + or - sign?
 	case unicode.IsDigit(r):
 		l.Backup()
 		return readNumber
