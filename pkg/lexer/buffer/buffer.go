@@ -16,7 +16,7 @@ type LexerBuf struct {
 
 func New(lexer *lex.Lexer) *LexerBuf {
 	l := &LexerBuf{lexer, Token{}, Token{}}
-	// one step so that first Next() gives the first token
+	// one step so that first Eat() gives the first token
 	l.Eat()
 	return l
 }
