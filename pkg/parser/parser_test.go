@@ -11,6 +11,7 @@ import (
 	"github.com/bragov4ik/yacal/pkg/lexer"
 	"github.com/bragov4ik/yacal/pkg/lexer/tok"
 	"github.com/bragov4ik/yacal/pkg/parser"
+	"github.com/bragov4ik/yacal/pkg/parser/lex_buf"
 	"github.com/bragov4ik/yacal/pkg/parser/tree"
 )
 
@@ -72,7 +73,8 @@ func TestElements(t *testing.T) {
 
 	for _, tc := range tests {
 		l := lexer.New(lex.NewFile("tmp", strings.NewReader(tc.input)))
-		tree, err := parser.ParseProgram(l)
+		lb := lex_buf.New(l)
+		tree, err := parser.ParseProgram(lb)
 		if err != nil {
 			t.Fatalf("Discover error (%v) while parsing %v", err, tc.input)
 		}
