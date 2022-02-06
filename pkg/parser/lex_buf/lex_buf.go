@@ -9,21 +9,30 @@ type LexResult struct {
 }
 
 type LexerBuf struct {
-	lexer  *lex.Lexer
-	curLex LexResult
+	lexer   *lex.Lexer
+	curLex  LexResult
+	nextLex LexResult
 }
 
 func New(lexer *lex.Lexer) *LexerBuf {
-	return &LexerBuf{lexer, LexResult{}}
+	l := &LexerBuf{lexer, LexResult{}, LexResult{}}
+	// one step so that first Next() gives the first token
+	l.Next()
+	return l
 }
 
 func (l *LexerBuf) Next() LexResult {
 	ty, at, token := l.lexer.Lex()
 	at += 1
-	l.curLex = LexResult{ty, at, token}
+	l.curLex = l.nextLex
+	l.nextLex = LexResult{ty, at, token}
 	return l.curLex
 }
 
 func (l *LexerBuf) Current() LexResult {
 	return l.curLex
+}
+
+func (l *LexerBuf) Peek() LexResult {
+	return l.nextLex
 }
