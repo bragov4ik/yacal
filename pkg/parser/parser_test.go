@@ -49,25 +49,25 @@ func parsesTo(input string, tree interface{}) testCase {
 
 func TestElements(t *testing.T) {
 	tests := []testCase{
-		parsesTo("1", &tree.Program{[]tree.Node{&tree.Literal{1}}}),
-		parsesTo("+5.1", &tree.Program{[]tree.Node{&tree.Literal{5.1}}}),
-		parsesTo("true", &tree.Program{[]tree.Node{&tree.Literal{true}}}),
-		parsesTo("null", &tree.Program{[]tree.Node{&tree.Literal{NULL}}}),
-		parsesTo("'a'", &tree.Program{[]tree.Node{&tree.Literal{'a'}}}),
-		parsesTo("\"alola\"", &tree.Program{[]tree.Node{&tree.Literal{"alola"}}}),
+		parsesTo("1", &tree.Program{Elements: []tree.Node{&tree.Literal{Value: 1}}}),
+		parsesTo("+5.1", &tree.Program{Elements: []tree.Node{&tree.Literal{Value: 5.1}}}),
+		parsesTo("true", &tree.Program{Elements: []tree.Node{&tree.Literal{Value: true}}}),
+		parsesTo("null", &tree.Program{Elements: []tree.Node{&tree.Literal{Value: NULL}}}),
+		parsesTo("'a'", &tree.Program{Elements: []tree.Node{&tree.Literal{Value: 'a'}}}),
+		parsesTo("\"alola\"", &tree.Program{Elements: []tree.Node{&tree.Literal{Value: "alola"}}}),
 
-		parsesTo("a4", &tree.Program{[]tree.Node{&tree.Atom{"a4"}}}),
-		parsesTo("(+ 1 2)", &tree.Program{[]tree.Node{&tree.List{[]tree.Node{&tree.Atom{"+"}, &tree.Literal{1}, &tree.Literal{2}}}}}),
-		parsesTo("(+12)", &tree.Program{[]tree.Node{&tree.List{[]tree.Node{&tree.Literal{12}}}}}),
-		parsesTo("(setq x (quote y))", &tree.Program{[]tree.Node{&tree.List{[]tree.Node{&tree.Atom{"setq"}, &tree.Atom{"x"}, &tree.List{[]tree.Node{&tree.Atom{"quote"}, &tree.Atom{"y"}}}}}}}),
-		parsesTo("(setq x(+ 2 3))", &tree.Program{[]tree.Node{&tree.List{[]tree.Node{&tree.Atom{"setq"}, &tree.Atom{"x"}, &tree.List{[]tree.Node{&tree.Atom{"+"}, &tree.Literal{2}, &tree.Literal{3}}}}}}}),
-		parsesTo("(setq x(+ 2 3))", &tree.Program{[]tree.Node{&tree.List{[]tree.Node{&tree.Atom{"setq"}, &tree.Atom{"x"}, &tree.List{[]tree.Node{&tree.Atom{"+"}, &tree.Literal{2}, &tree.Literal{3}}}}}}}),
+		parsesTo("a4", &tree.Program{Elements: []tree.Node{&tree.Atom{Ident: "a4"}}}),
+		parsesTo("(+ 1 2)", &tree.Program{Elements: []tree.Node{&tree.List{Elements: []tree.Node{&tree.Atom{Ident: "+"}, &tree.Literal{Value: 1}, &tree.Literal{Value: 2}}}}}),
+		parsesTo("(+12)", &tree.Program{Elements: []tree.Node{&tree.List{Elements: []tree.Node{&tree.Literal{Value: 12}}}}}),
+		parsesTo("(setq x (quote y))", &tree.Program{Elements: []tree.Node{&tree.List{Elements: []tree.Node{&tree.Atom{Ident: "setq"}, &tree.Atom{Ident: "x"}, &tree.List{Elements: []tree.Node{&tree.Atom{Ident: "quote"}, &tree.Atom{Ident: "y"}}}}}}}),
+		parsesTo("(setq x(+ 2 3))", &tree.Program{Elements: []tree.Node{&tree.List{Elements: []tree.Node{&tree.Atom{Ident: "setq"}, &tree.Atom{Ident: "x"}, &tree.List{Elements: []tree.Node{&tree.Atom{Ident: "+"}, &tree.Literal{Value: 2}, &tree.Literal{Value: 3}}}}}}}),
+		parsesTo("(setq x(+ 2 3))", &tree.Program{Elements: []tree.Node{&tree.List{Elements: []tree.Node{&tree.Atom{Ident: "setq"}, &tree.Atom{Ident: "x"}, &tree.List{Elements: []tree.Node{&tree.Atom{Ident: "+"}, &tree.Literal{Value: 2}, &tree.Literal{Value: 3}}}}}}}),
 		parsesTo(`(setq x 5)
 		(setq y (plus 1 2))
-		(setq z null)`, &tree.Program{[]tree.Node{
-			&tree.List{[]tree.Node{&tree.Atom{"setq"}, &tree.Atom{"x"}, &tree.Literal{5}}},
-			&tree.List{[]tree.Node{&tree.Atom{"setq"}, &tree.Atom{"y"}, &tree.List{[]tree.Node{&tree.Atom{"plus"}, &tree.Literal{1}, &tree.Literal{2}}}}},
-			&tree.List{[]tree.Node{&tree.Atom{"setq"}, &tree.Atom{"z"}, &tree.Literal{NULL}}}}}),
+		(setq z null)`, &tree.Program{Elements: []tree.Node{
+			&tree.List{Elements: []tree.Node{&tree.Atom{Ident: "setq"}, &tree.Atom{Ident: "x"}, &tree.Literal{Value: 5}}},
+			&tree.List{Elements: []tree.Node{&tree.Atom{Ident: "setq"}, &tree.Atom{Ident: "y"}, &tree.List{Elements: []tree.Node{&tree.Atom{Ident: "plus"}, &tree.Literal{Value: 1}, &tree.Literal{Value: 2}}}}},
+			&tree.List{Elements: []tree.Node{&tree.Atom{Ident: "setq"}, &tree.Atom{Ident: "z"}, &tree.Literal{Value: NULL}}}}}),
 	}
 
 	for _, tc := range tests {
