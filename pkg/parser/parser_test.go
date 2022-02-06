@@ -9,9 +9,9 @@ import (
 	"github.com/k0kubun/pp"
 
 	"github.com/bragov4ik/yacal/pkg/lexer"
+	"github.com/bragov4ik/yacal/pkg/lexer/buffer"
 	"github.com/bragov4ik/yacal/pkg/lexer/tok"
 	"github.com/bragov4ik/yacal/pkg/parser"
-	"github.com/bragov4ik/yacal/pkg/parser/lex_buf"
 	"github.com/bragov4ik/yacal/pkg/parser/tree"
 )
 
@@ -55,13 +55,13 @@ func TestElements(t *testing.T) {
 
 	for _, tc := range tests {
 		l := lexer.New(lex.NewFile("tmp", strings.NewReader(tc.input)))
-		lb := lex_buf.New(l)
+		lb := buffer.New(l)
 		tree, err := parser.ParseProgram(lb)
 		if err != nil {
 			t.Fatalf("Discover error (%v) while parsing %v", err, tc.input)
 		}
 		if !reflect.DeepEqual(tree, tc.tree) {
-			t.Error(pp.Sprintf(
+			t.Fatalf(pp.Sprintf(
 				"%v should be tokenized to\n%v\nbut got\n%v",
 				tc.input, tc.tree, tree,
 			))

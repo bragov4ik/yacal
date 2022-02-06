@@ -1,8 +1,8 @@
 package parser
 
 import (
+	"github.com/bragov4ik/yacal/pkg/lexer/buffer"
 	"github.com/bragov4ik/yacal/pkg/lexer/tok"
-	"github.com/bragov4ik/yacal/pkg/parser/lex_buf"
 	"github.com/bragov4ik/yacal/pkg/parser/tree"
 	"github.com/k0kubun/pp"
 )
@@ -19,11 +19,8 @@ func parseLiteral(value interface{}) *tree.Literal {
 
 // Non-terminals
 
-func parseList(l *lex_buf.LexerBuf) (*tree.List, error) {
-	// (
-	if l.Current().Ty != tok.LBRACE {
-		return nil, pp.Errorf("Error happened at %v: %v\n", l.Current().At, "List should start with '('")
-	}
+func parseList(l *buffer.LexerBuf) (*tree.List, error) {
+	// Don't need to check left bracket, it is already checked by parseElement
 
 	// Check first element
 	if l.Peek().Ty == tok.RBRACE {
@@ -44,6 +41,7 @@ func parseList(l *lex_buf.LexerBuf) (*tree.List, error) {
 	// Other elements until EOF or closing brace
 	for {
 		if l.Peek().Ty == tok.RBRACE {
+			l.Eat()
 			break
 		} else if l.Peek().Ty == tok.EOF {
 			return nil, pp.Errorf("Error happened at %v: %v\n", l.Peek().At, "Unexpected EOF, list is not closed")
@@ -58,8 +56,9 @@ func parseList(l *lex_buf.LexerBuf) (*tree.List, error) {
 	return &tree.List{Elements: elements}, nil
 }
 
-func parseElement(l *lex_buf.LexerBuf) (tree.Node, error) {
-	switch v := l.Next().Token.(type) {
+func parseElement(l *buffer.LexerBuf) (tree.Node, error) {
+	nextElem := l.Eat()
+	switch v := nextElem.Token.(type) {
 	case tok.Ident:
 		return parseAtom(v), nil
 	case int, float64, bool, rune, string, tok.Null:
@@ -67,11 +66,11 @@ func parseElement(l *lex_buf.LexerBuf) (tree.Node, error) {
 	case tok.LBrace:
 		return parseList(l)
 	default:
-		return nil, pp.Errorf("Error happened at %v: Unexpected token %v\n", l.Current().At, l.Current().Token)
+		return nil, pp.Errorf("Error happened at %v: Unexpected token %v\n", nextElem.At, nextElem.Token)
 	}
 }
 
-func ParseProgram(l *lex_buf.LexerBuf) (*tree.Program, error) {
+func ParseProgram(l *buffer.LexerBuf) (*tree.Program, error) {
 	// Check first element
 	if l.Peek().Ty == tok.RBRACE {
 		return nil, pp.Errorf("Error happened at %v: %v\n", l.Peek().At, "Unexpected ')'")
