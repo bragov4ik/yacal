@@ -9,6 +9,7 @@ import (
 	"github.com/k0kubun/pp"
 
 	"github.com/bragov4ik/yacal/pkg/lexer"
+	"github.com/bragov4ik/yacal/pkg/lexer/tok"
 	"github.com/bragov4ik/yacal/pkg/parser"
 	"github.com/bragov4ik/yacal/pkg/parser/ast"
 )
@@ -42,6 +43,32 @@ func TestElements(t *testing.T) {
 			t.Fatal(pp.Sprintf(
 				"%v should be made into this ast\n%v\nbut got\n%v",
 				tc.input, tc.prog, prog,
+			))
+		}
+	}
+}
+
+func TestErrors(t *testing.T) {
+	type testErr struct {
+		input string
+		err   error
+	}
+
+	tests := []testErr{
+		{")", pp.Errorf("Expected some element, but got %v", tok.RBrace{})},
+		{"(a", pp.Errorf("Unexpected EOF while decoding list")},
+	}
+
+	for i, tc := range tests {
+		_, err := parser.New(lexer.New(lex.NewFile("tmp", strings.NewReader(tc.input)))).Parse()
+		if err == nil {
+			t.Fatalf("Expected error at test %v with input %v", i, tc.input)
+		}
+
+		if !reflect.DeepEqual(err, tc.err) {
+			t.Fatal(pp.Sprintf(
+				"Expected error %v for input %v\nbut got %v",
+				tc.input, tc.err, err,
 			))
 		}
 	}
