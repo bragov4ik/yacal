@@ -1,5 +1,9 @@
 package tree
 
+type Node interface {
+	node()
+}
+
 type Atom struct {
 	Ident string
 }
@@ -9,5 +13,9 @@ type Literal struct {
 }
 
 type List struct {
-	Elements []interface{}
+	Elements []Node
 }
+
+func (*Atom) node()    {}
+func (*Literal) node() {}
+func (*List) node()    {}
