@@ -37,7 +37,6 @@ func (p *Parser) parseList() (ast.List, error) {
 		}
 
 		l = append(l, e)
-		pp.Print(l)
 	}
 }
 
@@ -73,11 +72,11 @@ func (p *Parser) Parse() ([]interface{}, error) {
 	prog := []interface{}{}
 	for {
 		e, err := p.parseElem()
-		if e == nil {
-			return prog, nil
-		}
 		if err != nil {
 			return prog, err
+		}
+		if e == nil {
+			return prog, nil
 		}
 		prog = append(prog, e)
 	}
