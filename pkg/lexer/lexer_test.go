@@ -23,7 +23,7 @@ var (
 	NULL = tok.Null{}
 )
 
-func id(s string) tok.Ident { return tok.NewIdent(s) }
+func id(s string) tok.Ident { return tok.Ident{Val: s} }
 
 func readTokens(t *testing.T, l *lexer.Lexer) ([]interface{}, error) {
 	tokens := []interface{}{}

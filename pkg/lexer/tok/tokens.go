@@ -29,8 +29,5 @@ type (
 	RBrace struct{}
 	Null   struct{}
 	Eof    struct{}
-	Ident  struct{ string }
+	Ident  struct{ Val string }
 )
-
-func NewIdent(s string) Ident    { return Ident{s} }
-func (id *Ident) String() string { return id.string }
