@@ -26,24 +26,6 @@ var (
 	NULL = tok.Null{}
 )
 
-func id(s string) tok.Ident { return tok.NewIdent(s) }
-
-func readTokens(t *testing.T, l *lex.Lexer) ([]interface{}, error) {
-	tokens := []interface{}{}
-
-	for ty, at, token := l.Lex(); ty != tok.EOF; ty, at, token = l.Lex() {
-		at += 1
-		if err, isErr := token.(error); isErr {
-			return nil, pp.Errorf("Error happened at %v: %v\n", at, err)
-		}
-
-		// in order to make explicit copy of empty interface
-		tokens = append(tokens, token)
-	}
-
-	return tokens, nil
-}
-
 func parsesTo(input string, tree interface{}) testCase {
 	return testCase{input, tree}
 }
