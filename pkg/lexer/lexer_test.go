@@ -25,17 +25,16 @@ var (
 
 func id(s string) tok.Ident { return tok.NewIdent(s) }
 
-func readTokens(t *testing.T, l *lex.Lexer) ([]interface{}, error) {
+func readTokens(t *testing.T, l *lexer.Lexer) ([]interface{}, error) {
 	tokens := []interface{}{}
 
-	for ty, at, token := l.Lex(); ty != tok.EOF; ty, at, token = l.Lex() {
-		at += 1
-		if err, isErr := token.(error); isErr {
-			return nil, pp.Errorf("Error happened at %v: %v\n", at, err)
+	for token := l.Eat(); token.Ty != tok.EOF; token = l.Eat() {
+		if err, isErr := token.Value.(error); isErr {
+			return nil, pp.Errorf("Error happened at %v: %v\n", token.At, err)
 		}
 
 		// in order to make explicit copy of empty interface
-		tokens = append(tokens, token)
+		tokens = append(tokens, token.Value)
 	}
 
 	return tokens, nil

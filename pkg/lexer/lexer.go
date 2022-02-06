@@ -9,6 +9,28 @@ import (
 	"github.com/bragov4ik/yacal/pkg/lexer/tok"
 )
 
+type Lexer struct {
+	lex *lex.Lexer
+	cur Token
+}
+
+type Token struct {
+	Ty    lex.Token
+	At    int
+	Value interface{}
+}
+
+func (l *Lexer) Peek() Token { return l.cur }
+
+func (l *Lexer) Eat() Token {
+	tok := l.cur
+	ty, at, value := l.lex.Lex()
+	// Weird bug in library. Everything starts at -1
+	at += 1
+	l.cur = Token{ty, at, value}
+	return tok
+}
+
 func isAtomEnd(r rune) bool {
 	return unicode.IsSpace(r) || r == lex.EOF || r == ')' || r == '('
 }
@@ -229,4 +251,9 @@ func readTok(l *lex.State) lex.StateFn {
 	return nil
 }
 
-func New(f *lex.File) *lex.Lexer { return lex.NewLexer(f, readTok) }
+func New(f *lex.File) *Lexer {
+	lex := lex.NewLexer(f, readTok)
+	l := Lexer{lex, Token{}}
+	l.Eat()
+	return &l
+}

@@ -12,12 +12,10 @@ import (
 
 func main() {
 	l := lexer.New(lex.NewFile("tmp", strings.NewReader("(+ 1 2) (x 1 2 (1 2 3))")))
-	for ty, at, token := l.Lex(); ty != tok.EOF; ty, at, token = l.Lex() {
-		// Weird bug in library. Everything starts at -1
-		at += 1
-		if err, isErr := token.(error); isErr {
-			pp.Fatalf("Error happened at %v: %v\n", at, err)
+	for token := l.Eat(); token.Ty != tok.EOF; token = l.Eat() {
+		if err, isErr := token.Value.(error); isErr {
+			pp.Fatalf("Error happened at %v: %v\n", token.At, err)
 		}
-		pp.Printf("token of type %v at %v with value %v\n", ty, at, token)
+		pp.Printf("token of type %v at %v with value %v\n", token.Ty, token.At, token.Value)
 	}
 }
