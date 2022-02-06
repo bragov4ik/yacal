@@ -69,7 +69,7 @@ func readIdent(l *lex.State) lex.StateFn {
 	case "null":
 		l.Emit(l.TokenPos(), tok.NULL, tok.Null{})
 	default:
-		l.Emit(l.TokenPos(), tok.IDENT, tok.NewIdent(ident))
+		l.Emit(l.TokenPos(), tok.IDENT, tok.Ident{Val: ident})
 	}
 	return nil
 }
