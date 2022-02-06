@@ -14,7 +14,7 @@ type tokenInfo struct {
 }
 
 // Obtain next token and report error if any
-func NextToken(l *lex.Lexer) tokenInfo {
+func nextToken(l *lex.Lexer) tokenInfo {
 	ty, at, token := l.Lex()
 	at += 1
 	if err, isErr := token.(error); isErr {
@@ -37,7 +37,7 @@ func parseLiteral(value interface{}) *tree.Literal {
 
 // Non-terminals
 
-func ParseList(curTok tokenInfo, l *lex.Lexer) (*tree.List, error) {
+func parseList(curTok tokenInfo, l *lex.Lexer) (*tree.List, error) {
 	var tokenInfo tokenInfo
 	// (
 	if curTok.ty != tok.LBRACE {
@@ -46,11 +46,11 @@ func ParseList(curTok tokenInfo, l *lex.Lexer) (*tree.List, error) {
 
 	// First element (mandatory)
 	elements := make([]tree.Node, 0)
-	tokenInfo = NextToken(l)
+	tokenInfo = nextToken(l)
 	if tokenInfo.ty == tok.RBRACE {
 		return nil, pp.Errorf("Error happened at %v: %v\n", tokenInfo.at, "List should be non-empty")
 	}
-	elem, err := ParseElement(tokenInfo, l)
+	elem, err := parseElement(tokenInfo, l)
 	if err == nil {
 		elements = append(elements, elem)
 	} else {
@@ -58,11 +58,11 @@ func ParseList(curTok tokenInfo, l *lex.Lexer) (*tree.List, error) {
 	}
 
 	// Other elements until closing brace
-	for tokenInfo = NextToken(l); tokenInfo.ty != tok.EOF; tokenInfo = NextToken(l) {
+	for tokenInfo = nextToken(l); tokenInfo.ty != tok.EOF; tokenInfo = nextToken(l) {
 		if tokenInfo.ty == tok.RBRACE {
 			break
 		}
-		elem, err := ParseElement(tokenInfo, l)
+		elem, err := parseElement(tokenInfo, l)
 		if err == nil {
 			elements = append(elements, elem)
 		} else {
@@ -72,15 +72,41 @@ func ParseList(curTok tokenInfo, l *lex.Lexer) (*tree.List, error) {
 	return &tree.List{Elements: elements}, nil
 }
 
-func ParseElement(curTok tokenInfo, l *lex.Lexer) (tree.Node, error) {
+func parseElement(curTok tokenInfo, l *lex.Lexer) (tree.Node, error) {
 	switch v := curTok.token.(type) {
 	case tok.Ident:
 		return parseAtom(v), nil
 	case int, float64, bool, rune, string, tok.Null:
 		return parseLiteral(v), nil
 	case tok.LBrace:
-		return ParseList(curTok, l)
+		return parseList(curTok, l)
 	default:
 		return nil, pp.Errorf("Error happened at %v: Unexpected token %v\n", curTok.at, curTok.token)
 	}
+}
+
+func ParseProgram(l *lex.Lexer) (*tree.Program, error) {
+	// First element (mandatory)
+	elements := make([]tree.Node, 0)
+	tokenInfo := nextToken(l)
+	if tokenInfo.ty == tok.RBRACE {
+		return nil, pp.Errorf("Error happened at %v: %v\n", tokenInfo.at, "Program should be non-empty")
+	}
+	elem, err := parseElement(tokenInfo, l)
+	if err == nil {
+		elements = append(elements, elem)
+	} else {
+		return nil, err
+	}
+
+	// Other elements until EOF
+	for tokenInfo = nextToken(l); tokenInfo.ty != tok.EOF; tokenInfo = nextToken(l) {
+		elem, err := parseElement(tokenInfo, l)
+		if err == nil {
+			elements = append(elements, elem)
+		} else {
+			return nil, err
+		}
+	}
+	return &tree.Program{Elements: elements}, nil
 }
