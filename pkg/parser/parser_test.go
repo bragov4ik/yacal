@@ -31,6 +31,11 @@ func TestElements(t *testing.T) {
 		parsesTo("(setq x (quote y))", list(atom("setq"), atom("x"), list(atom("quote"), atom("y")))),
 		parsesTo("(repeat \":kae:\" 1000)", list(atom("repeat"), ":kae:", 1000)),
 		parsesTo("(setq x(+ 2 3))", list(atom("setq"), atom("x"), list(atom("+"), 2, 3))),
+		parsesTo(`(setq x 5) (setq y (plus 1 2)) (setq z null)`,
+			list(atom("setq"), atom("x"), 5),
+			list(atom("setq"), atom("y"), list(atom("plus"), 1, 2)),
+			list(atom("setq"), atom("z"), ast.Null{}),
+		),
 	}
 
 	for i, tc := range tests {
