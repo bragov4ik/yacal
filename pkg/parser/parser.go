@@ -48,6 +48,7 @@ func (p *Parser) parseElem() (interface{}, error) {
 		v := p.lex.Eat().Value.(tok.Ident).Val
 		return ast.Atom{Val: v}, nil
 	case tok.NULL:
+		p.lex.Eat()
 		return ast.Null{}, nil
 
 	case tok.BOOL:
