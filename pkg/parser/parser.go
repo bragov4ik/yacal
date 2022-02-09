@@ -12,6 +12,19 @@ type Parser struct{ lex *lexer.Lexer }
 
 func New(lex *lexer.Lexer) *Parser { return &Parser{lex} }
 
+func (p *Parser) parseQuote() (ast.List, error) {
+	if p.lex.Peek().Ty != tok.QUOTE {
+		pp.Fatalf("Unexpected token %v", p.lex.Eat().Value)
+	}
+	p.lex.Eat()
+
+	e, err := p.parseElem()
+	if err != nil {
+		return nil, pp.Errorf("Unexpected error decoding quote: %v", err)
+	}
+	return ast.List{ast.Atom{Val: "quote"}, e}, nil
+}
+
 func (p *Parser) parseList() (ast.List, error) {
 	if p.lex.Peek().Ty != tok.LBRACE {
 		pp.Fatalf("Unexpected token %v", p.lex.Eat().Value)
@@ -44,6 +57,8 @@ func (p *Parser) parseElem() (interface{}, error) {
 	switch p.lex.Peek().Ty {
 	case tok.LBRACE:
 		return p.parseList()
+	case tok.QUOTE:
+		return p.parseQuote()
 	case tok.IDENT:
 		v := p.lex.Eat().Value.(tok.Ident).Val
 		return ast.Atom{Val: v}, nil
@@ -54,8 +69,6 @@ func (p *Parser) parseElem() (interface{}, error) {
 	case tok.BOOL:
 		fallthrough
 	case tok.REAL:
-		fallthrough
-	case tok.LETTER:
 		fallthrough
 	case tok.STRING:
 		fallthrough

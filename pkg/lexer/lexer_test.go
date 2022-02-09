@@ -21,6 +21,7 @@ var (
 	LB   = tok.LBrace{}
 	RB   = tok.RBrace{}
 	NULL = tok.Null{}
+	Q    = tok.Quote{}
 )
 
 func id(s string) tok.Ident { return tok.Ident{Val: s} }
@@ -59,11 +60,6 @@ func TestElements(t *testing.T) {
 		parsesTo("false", false),
 		parsesTo("null", NULL),
 
-		parsesTo("'a'", 'a'),
-		parsesTo("'\\\\'", '\\'),
-		parsesTo("'\"'", '"'),
-		parsesTo("'\\''", '\''),
-
 		parsesTo("\"\"", ""),
 		parsesTo("\"alola\"", "alola"),
 		parsesTo("\"al\\\"ola\"", "al\"ola"),
@@ -82,6 +78,7 @@ func TestElements(t *testing.T) {
 		parsesTo("(repeat \":kae:\" 1000)", LB, id("repeat"), ":kae:", 1000, RB),
 		parsesTo("(append \"a\\\"bo\" \"ba\\\"\")", LB, id("append"), "a\"bo", "ba\"", RB),
 		parsesTo("(setq x(+ 2 3))", LB, id("setq"), id("x"), LB, id("+"), 2, 3, RB, RB),
+		parsesTo("(car '(1 2 3))", LB, id("car"), Q, LB, 1, 2, 3, RB, RB),
 	}
 
 	for _, tc := range tests {

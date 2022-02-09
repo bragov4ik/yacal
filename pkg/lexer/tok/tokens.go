@@ -11,6 +11,7 @@ const (
 	RBRACE
 	IDENT
 	NULL
+	QUOTE
 
 	// Native int type in golang
 	INT
@@ -18,8 +19,6 @@ const (
 	REAL
 	// Native bool type in golang
 	BOOL
-	// Native rune type in golang
-	LETTER
 	// Native string type in golang
 	STRING
 )
@@ -27,6 +26,7 @@ const (
 type (
 	LBrace struct{}
 	RBrace struct{}
+	Quote  struct{}
 	Null   struct{}
 	Eof    struct{}
 	Ident  struct{ Val string }

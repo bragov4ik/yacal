@@ -135,43 +135,6 @@ func readNumber(l *lex.State) lex.StateFn {
 	return nil
 }
 
-func readChar(l *lex.State) lex.StateFn {
-	l.StartToken(l.Pos())
-	if got, assert := assertChar(l, '\''); assert {
-		l.Errorf(l.Pos(), "Character symbol should start with single quote, not with `%v'", string(got))
-	}
-
-	r := l.Next()
-	switch r {
-	case '\\':
-		switch r = l.Next(); r {
-		case 'r':
-			r = '\r'
-		case 'n':
-			r = '\n'
-		case '\\':
-			r = '\\'
-		case '\'':
-			r = '\''
-		case lex.EOF:
-			l.Errorf(l.Pos(), "Expected character after backslash, but got EOF")
-			return nil
-		default:
-			l.Errorf(l.Pos(), "Unknown escape char `%v'", string(r))
-			return nil
-		}
-	case '\'':
-		l.Errorf(l.Pos(), "Expected character")
-		return nil
-	}
-
-	if got, assert := assertChar(l, '\''); assert {
-		l.Errorf(l.Pos(), "Character symbol should end with single quote, not with `%v'", string(got))
-	}
-	l.Emit(l.TokenPos(), tok.LETTER, r)
-	return nil
-}
-
 func readString(l *lex.State) lex.StateFn {
 	l.StartToken(l.Pos())
 	if got, assert := assertChar(l, '"'); assert {
@@ -227,16 +190,13 @@ func readTok(l *lex.State) lex.StateFn {
 		l.Emit(l.TokenPos(), tok.LBRACE, tok.LBrace{})
 	case r == ')':
 		l.Emit(l.TokenPos(), tok.RBRACE, tok.RBrace{})
+	case r == '\'':
+		l.Emit(l.TokenPos(), tok.QUOTE, tok.Quote{})
 	case r == '"':
 		if err := l.UnreadRune(); err != nil {
 			l.Errorf(l.Pos(), "Unexpected error: %v", err)
 		}
 		return readString
-	case r == '\'':
-		if err := l.UnreadRune(); err != nil {
-			l.Errorf(l.Pos(), "Unexpected error: %v", err)
-		}
-		return readChar
 	case unicode.IsDigit(r) || ((r == '+' || r == '-') && unicode.IsDigit(l.Peek())):
 		if err := l.UnreadRune(); err != nil {
 			l.Errorf(l.Pos(), "Unexpected error: %v", err)
