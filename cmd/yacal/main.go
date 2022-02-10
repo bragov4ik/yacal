@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/db47h/lex"
+	"github.com/k0kubun/pp"
 
 	"github.com/bragov4ik/yacal/pkg/lexer"
 	"github.com/bragov4ik/yacal/pkg/parser"
@@ -16,7 +17,7 @@ func main() {
 	for _, path := range os.Args[1:] {
 		file, err := os.Open(path)
 		if err != nil {
-			fmt.Printf("Failed to open file %v: %v", path, err)
+			panic(fmt.Errorf("failed to open file %v: %v", path, err))
 		}
 
 		f := lex.NewFile(path, file)
@@ -25,11 +26,11 @@ func main() {
 		ast, err := p.Parse()
 
 		if err != nil {
-			fmt.Printf("Got an error while building an ast for file %v: %v", path, err)
+			panic(fmt.Errorf("got an error while building an ast for file %v: %v", path, err))
 		}
 
 		global_ast = append(global_ast, ast...)
 	}
 
-	fmt.Printf("%v\n", global_ast)
+	pp.Printf("%v\n", global_ast)
 }
