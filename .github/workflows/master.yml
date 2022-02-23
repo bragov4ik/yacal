@@ -24,8 +24,8 @@ jobs:
 
       - name: Download dependencies
         run: go get ./...
-      - name: Lint via golint
-        uses: golangci/golangci-lint-action@v2
+      - name: Lint via go vet
+        run: go vet ./...
 
       - name: Run build
         run: go build github.com/bragov4ik/yacal/...
