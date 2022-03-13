@@ -28,12 +28,16 @@ func TestElements(t *testing.T) {
 		evalTo("(+ 1 2)", 3),
 		evalTo("(set x 2) x", nil, 2),
 		evalTo("(set mul2 (lambda (x) (+ x x))) (mul2 10)", nil, 20),
+		evalTo("'(1 2 3)", list(1, 2, 3)),
+		evalTo("(= (+ 2 2) 4)", true),
+		evalTo("(and (and (isreal 1.0) (isbool true)) (and (isnull null) (islist '(1 2 3))))", true),
+		evalTo("(xor (and (isreal 1.0) (isbool true)) (!= 4 3))", false),
+		evalTo("(eval '(+ 1 2)) (eval 1)", 3, 1),
+		evalTo(`(set max 
+				(lambda (x y) (
+					cond (> x y) x y)))
+				(max 1 3)`, nil, 3),
 		// evalTo("(car '(1 2 3))", list(atom("car"), list(atom("quote"), list(1, 2, 3)))),
-		// evalTo(`(setq x 5) (setq y (plus 1 2)) (setq z null)`,
-		// 	list(atom("setq"), atom("x"), 5),
-		// 	list(atom("setq"), atom("y"), list(atom("plus"), 1, 2)),
-		// 	list(atom("setq"), atom("z"), ast.Null{}),
-		// ),
 	}
 
 	for i, tc := range tests {
