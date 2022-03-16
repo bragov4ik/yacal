@@ -17,7 +17,7 @@ func Head(i *types.Interpreter, args []interface{}) (interface{}, error) {
 		return nil, fmt.Errorf("Expected list, but got %v", _l)
 	}
 	if len(l) == 0 {
-		return nil, nil
+		return ast.Null{}, nil
 	}
 	return l[0], nil
 }
@@ -32,7 +32,7 @@ func Tail(i *types.Interpreter, args []interface{}) (interface{}, error) {
 		return nil, fmt.Errorf("Expected list, but got %v", _l)
 	}
 	if len(l) < 2 {
-		return nil, nil
+		return ast.Null{}, nil
 	}
 	return l[1:], nil
 }

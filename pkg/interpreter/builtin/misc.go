@@ -41,7 +41,11 @@ func Lambda(_ *types.Interpreter, args []interface{}) (interface{}, error) {
 		v, err := in.Eval(body)
 
 		for k, v := range old_state {
-			in.SetState(k, v)
+			if v == nil {
+				in.DeleteState(k)
+			} else {
+				in.SetState(k, v)
+			}
 		}
 
 		return v, err
@@ -136,4 +140,54 @@ func While(i *types.Interpreter, args []interface{}) (interface{}, error) {
 		}
 	}
 	return ast.Null{}, nil
+}
+
+func Prog(i *types.Interpreter, args []interface{}) (interface{}, error) {
+	if l := len(args); l != 2 {
+		return nil, fmt.Errorf("expected 2 arguments for prog, but got %v", l)
+	}
+
+	atoms_context := []string{}
+	al, ok := args[0].(ast.List)
+	if !ok {
+		return nil, fmt.Errorf("Expected argument list and program body")
+	}
+	for _, a := range al {
+		if arg, ok := a.(ast.Atom); ok {
+			atoms_context = append(atoms_context, arg.Val)
+		} else {
+			return nil, fmt.Errorf("Expected atoms in argument list")
+		}
+	}
+	body, ok := args[1].(ast.List)
+	if !ok {
+		return nil, fmt.Errorf("Expected program body")
+	}
+
+	// Save state
+	old_state := map[string]interface{}{}
+	for iter_number := 0; iter_number < len(args); iter_number++ {
+		// Save nils to delete from context later
+		old_state[atoms_context[iter_number]], _ = i.GetState(atoms_context[iter_number])
+	}
+
+	var res interface{} = ast.Null{}
+	for _, st := range body {
+		_res, err := i.Eval(st)
+		res = _res
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Restore state
+	for k, v := range old_state {
+		if v == nil {
+			i.DeleteState(k)
+		} else {
+			i.SetState(k, v)
+		}
+	}
+	// return result of last statement in prog
+	return res, nil
 }

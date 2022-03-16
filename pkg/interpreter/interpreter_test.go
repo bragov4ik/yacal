@@ -44,6 +44,15 @@ func TestElements(t *testing.T) {
 				(max 1 3)`, nil, 3),
 		evalTo("(set a 1) (while (< a 10) (set a (* a 4))) a", nil, ast.Null{}, 16),
 		evalTo("(isnull (while false (/ 1 0)))", true),
+		evalTo(`(set lst '(1 2 3))
+				(set x 404)
+				(set y 404)
+				(prog (x y) ((set x 333)
+					(set y lst) 
+				    (set x (+ x (head y)))
+					x))
+				x
+				y`, nil, nil, nil, 334, 404, 404),
 		// evalTo("(car '(1 2 3))", list(atom("car"), list(atom("quote"), list(1, 2, 3)))),
 	}
 

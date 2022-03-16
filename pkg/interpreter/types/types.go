@@ -25,6 +25,10 @@ func (i *Interpreter) SetState(name string, val interface{}) interface{} {
 	return ret
 }
 
+func (i *Interpreter) DeleteState(name string) {
+	delete(i.state, name)
+}
+
 func (i *Interpreter) GetState(name string) (interface{}, bool) {
 	v, ok := i.state[name]
 	return v, ok
