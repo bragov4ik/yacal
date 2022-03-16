@@ -1,1 +1,2 @@
-(func CubeIt (x) (times (times x x) x))
+(func CubeIt (x) (* (* x x) x))
+(print (CubeIt 3))

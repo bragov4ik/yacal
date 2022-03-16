@@ -14,6 +14,7 @@ func initFunc() map[string]interface{} {
 		"/":      types.Func(builtin.Divide),
 		"cond":   types.Func(builtin.Cond),
 		"lambda": types.Func(builtin.Lambda),
+		"func":   types.Func(builtin.SetFunc),
 		"quote":  types.Func(builtin.Quote),
 		"set":    types.Func(builtin.Set),
 		"eval":   types.Func(builtin.Eval),
