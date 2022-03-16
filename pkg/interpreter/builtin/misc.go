@@ -196,7 +196,7 @@ func Prog(i *types.Interpreter, args []interface{}) (interface{}, error) {
 }
 
 func ToString(arg interface{}) string {
-	switch arg.(type) {
+	switch v := arg.(type) {
 	case string:
 		return "\"" + fmt.Sprint(arg) + "\""
 	case int:
@@ -208,14 +208,13 @@ func ToString(arg interface{}) string {
 	case ast.Null:
 		return "null"
 	case ast.Atom:
-		return fmt.Sprint(arg.(ast.Atom).Val)
+		return fmt.Sprint(v.Val)
 	case ast.List:
-		list := arg.(ast.List)
-		if val, ok := list[0].(ast.Atom); ok && val.Val == "quote" {
-			return ToString(list[1])
+		if val, ok := v[0].(ast.Atom); ok && val.Val == "quote" {
+			return ToString(v[1])
 		}
 		var ret []string
-		for _, elem := range list {
+		for _, elem := range v {
 			ret = append(ret, ToString(elem))
 		}
 		return "(" + strings.Join(ret, " ") + ")"
@@ -242,6 +241,9 @@ func Input(_ *types.Interpreter, args []interface{}) (interface{}, error) {
 		return nil, fmt.Errorf("expected 0 arguments for input")
 	}
 	reader := bufio.NewReader(os.Stdin)
-	text, _ := reader.ReadString('\n')
+	text, err := reader.ReadString('\n')
+	if err != nil {
+		return nil, err
+	}
 	return text[:len(text)-1], nil
 }
