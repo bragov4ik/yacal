@@ -233,7 +233,7 @@ func Print(i *types.Interpreter, args []interface{}) (interface{}, error) {
 		output = append(output, ToString(arg))
 	}
 	fmt.Println(strings.Join(output, " "))
-	return nil, nil
+	return ast.Null{}, nil
 }
 
 func Input(_ *types.Interpreter, args []interface{}) (interface{}, error) {
