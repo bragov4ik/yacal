@@ -78,11 +78,14 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 }
 
 func (in *Interpreter) EvalArgs(args []interface{}) ([]interface{}, error) {
+	new_args := make([]interface{}, len(args))
+	copy(new_args, args)
 	for i := 0; i < len(args); i++ {
-		var err error
-		if args[i], err = in.Eval(args[i]); err != nil {
+		arg, err := in.Eval(args[i])
+		if err != nil {
 			return nil, err
 		}
+		new_args[i] = arg
 	}
-	return args, nil
+	return new_args, nil
 }

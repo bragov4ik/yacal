@@ -112,3 +112,28 @@ func Cond(i *types.Interpreter, args []interface{}) (interface{}, error) {
 		}
 	}
 }
+
+func While(i *types.Interpreter, args []interface{}) (interface{}, error) {
+	if l := len(args); l != 2 {
+		return nil, fmt.Errorf("expected 2 arguments for while, but got %v", l)
+	}
+	condition_statment, body_statment := args[0], args[1]
+	for iter_number := 0; iter_number < 10; iter_number++ {
+		condition, err := i.Eval(condition_statment)
+		if err != nil {
+			return nil, err
+		}
+		if _, ok := condition.(bool); !ok {
+			return nil, fmt.Errorf("expected bool in first argument of while, but got %v", condition)
+		}
+		if condition.(bool) {
+			fmt.Println(i.GetState("a"))
+			i.Eval(body_statment)
+			fmt.Println(i.GetState("a"))
+
+		} else {
+			break
+		}
+	}
+	return ast.Null{}, nil
+}

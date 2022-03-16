@@ -17,6 +17,7 @@ func initFunc() map[string]interface{} {
 		"quote":  types.Func(builtin.Quote),
 		"set":    types.Func(builtin.Set),
 		"eval":   types.Func(builtin.Eval),
+		"while":  types.Func(builtin.While),
 		"=":      types.Func(builtin.Quals),
 		"!=":     types.Func(builtin.NotQuals),
 		">":      types.Func(builtin.Greater),

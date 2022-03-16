@@ -42,6 +42,7 @@ func TestElements(t *testing.T) {
 				(lambda (x y) (
 					cond (> x y) x y)))
 				(max 1 3)`, nil, 3),
+		evalTo("(set a 1) (while (< a 10) (set a (* a 4))) a", nil, ast.Null{}, 16),
 		// evalTo("(car '(1 2 3))", list(atom("car"), list(atom("quote"), list(1, 2, 3)))),
 	}
 
