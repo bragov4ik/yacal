@@ -74,6 +74,24 @@ func Set(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	return i.SetState(arg.Val, v), nil
 }
 
+func SetFunc(i *types.Interpreter, args []interface{}) (interface{}, error) {
+	if len(args) != 3 {
+		return nil, fmt.Errorf("Expected 3 arguments in func")
+	}
+
+	arg, ok := args[0].(ast.Atom)
+	if !ok {
+		return nil, fmt.Errorf("Expected Atom as first argument")
+	}
+
+	lambda, err := Lambda(i, args[1:])
+	if err != nil {
+		return nil, err
+	}
+
+	return i.SetState(arg.Val, lambda), nil
+}
+
 func Quote(_ *types.Interpreter, args []interface{}) (interface{}, error) {
 	if len(args) != 1 {
 		return nil, fmt.Errorf("Expected only 1 argument for quote")

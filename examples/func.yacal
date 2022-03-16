@@ -1,0 +1,2 @@
+(func CubeIt (x) (* (* x x) x))
+(print (CubeIt 3))
