@@ -3,8 +3,6 @@ package types
 import (
 	"fmt"
 
-	"github.com/k0kubun/pp"
-
 	"github.com/bragov4ik/yacal/pkg/parser/ast"
 )
 
@@ -54,7 +52,7 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 		if v, ok := i.state[name]; ok {
 			return v, nil
 		} else {
-			return nil, pp.Errorf("Unexpected atom `%v'", name)
+			return nil, fmt.Errorf("Unexpected atom '%v'", name)
 		}
 	case ast.List:
 		list := expr.(ast.List)
@@ -63,7 +61,7 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 		}
 		a, err := i.Eval(list[0])
 		if err != nil {
-			return nil, pp.Errorf("Error while evaluation of function (%v): %v", list[0], err)
+			return nil, fmt.Errorf("Error while evaluation of function (%v): %v", list[0], err)
 		}
 		f, ok := a.(Func)
 		if !ok {
@@ -75,7 +73,7 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 		}
 		return out, nil
 	default:
-		return nil, pp.Errorf("%v expression has unknown type", expr)
+		return nil, fmt.Errorf("%v expression has unknown type", expr)
 	}
 }
 

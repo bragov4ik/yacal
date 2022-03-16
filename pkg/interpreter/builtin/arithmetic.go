@@ -155,23 +155,23 @@ func divideInt(args []interface{}) (interface{}, error) {
 }
 
 func divideReal(args []interface{}) (interface{}, error) {
-	nominator := float64(1)
+	nom := float64(1)
 	if n, ok := args[0].(float64); !ok {
 		return nil, fmt.Errorf("Expected number, but got %v", n)
 	} else {
-		nominator = n
+		nom = n
 	}
-	denominator := float64(1)
-	product, err := timesReal(args[1:])
+	denom := float64(1)
+	_denom, err := timesReal(args[1:])
 	if err != nil {
 		return nil, err
 	}
-	if n, ok := product.(float64); !ok {
+	if n, ok := _denom.(float64); !ok {
 		return nil, fmt.Errorf("Expected number, but got %v", n)
 	} else {
-		denominator = n
+		denom = n
 	}
-	return nominator / denominator, nil
+	return nom / denom, nil
 }
 
 func Divide(in *types.Interpreter, args []interface{}) (interface{}, error) {

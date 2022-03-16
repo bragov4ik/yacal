@@ -32,6 +32,7 @@ func TestElements(t *testing.T) {
 		evalTo("(set mul2 (lambda (x) (+ x x))) (mul2 10)", nil, 20),
 		evalTo("'(1 2 3)", list(1, 2, 3)),
 		evalTo("(= (+ 2 2) 4)", true),
+		evalTo("(set l (cons 4 '(3 2 1))) l", nil, list(4, 3, 2, 1)),
 		evalTo("(and (and (isreal 1.0) (isbool true)) (and (isnull null) (islist '(1 2 3))))", true),
 		evalTo("(xor (and (isreal 1.0) (isbool true)) (!= 4 3))", false),
 		evalTo("(eval '(+ 1 2)) (eval 1)", 3, 1),
