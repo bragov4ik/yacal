@@ -2,6 +2,7 @@ package builtin
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bragov4ik/yacal/pkg/interpreter/types"
 	"github.com/bragov4ik/yacal/pkg/parser/ast"
@@ -190,4 +191,48 @@ func Prog(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	}
 	// return result of last statement in prog
 	return res, nil
+}
+
+func ToString(arg interface{}) string {
+	switch arg.(type) {
+	case string:
+		return fmt.Sprint(arg)
+	case int:
+		return fmt.Sprint(arg)
+	case bool:
+		return fmt.Sprint(arg)
+	case rune:
+		return fmt.Sprint(arg)
+	case float64:
+		return fmt.Sprint(arg)
+	case ast.Null:
+		return "null"
+	case ast.Atom:
+		return fmt.Sprint(arg.(ast.Atom).Val)
+	case ast.List:
+		list := arg.(ast.List)
+		if val, ok := list[0].(ast.Atom); ok && val.Val == "quote" {
+			return ToString(list[1])
+		}
+		var ret []string
+		for _, elem := range list {
+			ret = append(ret, ToString(elem))
+		}
+		return "(" + strings.Join(ret, " ") + ")"
+	default:
+		return ""
+	}
+}
+
+func Print(i *types.Interpreter, args []interface{}) (interface{}, error) {
+	args, err := i.EvalArgs(args)
+	if err != nil {
+		return nil, err
+	}
+	var output []string
+	for _, arg := range args {
+		output = append(output, ToString(arg))
+	}
+	fmt.Println(strings.Join(output, " "))
+	return nil, nil
 }

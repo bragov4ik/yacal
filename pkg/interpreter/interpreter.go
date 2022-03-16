@@ -34,6 +34,7 @@ func initFunc() map[string]interface{} {
 		"or":     types.Func(builtin.Or),
 		"xor":    types.Func(builtin.Xor),
 		"not":    types.Func(builtin.Not),
+		"print":  types.Func(builtin.Print),
 		"head":   types.Func(builtin.Head),
 		"tail":   types.Func(builtin.Tail),
 		"cons":   types.Func(builtin.Cons),
