@@ -3,8 +3,6 @@ package types
 import (
 	"fmt"
 
-	"github.com/k0kubun/pp"
-
 	"github.com/bragov4ik/yacal/pkg/parser/ast"
 )
 
@@ -25,6 +23,10 @@ func (i *Interpreter) SetState(name string, val interface{}) interface{} {
 	}
 	i.state[name] = val
 	return ret
+}
+
+func (i *Interpreter) DeleteState(name string) {
+	delete(i.state, name)
 }
 
 func (i *Interpreter) GetState(name string) (interface{}, bool) {
@@ -54,7 +56,7 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 		if v, ok := i.state[name]; ok {
 			return v, nil
 		} else {
-			return nil, pp.Errorf("Unexpected atom `%v'", name)
+			return nil, fmt.Errorf("Unexpected atom '%v'", name)
 		}
 	case ast.List:
 		list := expr.(ast.List)
@@ -63,11 +65,11 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 		}
 		a, err := i.Eval(list[0])
 		if err != nil {
-			return nil, pp.Errorf("Error while evaluation of function (%v): %v", list[0], err)
+			return nil, fmt.Errorf("Error while evaluation of function (%v): %v", list[0], err)
 		}
 		f, ok := a.(Func)
 		if !ok {
-			return nil, pp.Errorf("Expected function, but got %v", f)
+			return nil, fmt.Errorf("Expected function, but got %v", f)
 		}
 		out, err := f(i, list[1:])
 		if err != nil {
@@ -75,16 +77,19 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 		}
 		return out, nil
 	default:
-		return nil, pp.Errorf("%v expression has unknown type", expr)
+		return nil, fmt.Errorf("%v expression has unknown type", expr)
 	}
 }
 
 func (in *Interpreter) EvalArgs(args []interface{}) ([]interface{}, error) {
+	new_args := make([]interface{}, len(args))
+	copy(new_args, args)
 	for i := 0; i < len(args); i++ {
-		var err error
-		if args[i], err = in.Eval(args[i]); err != nil {
+		arg, err := in.Eval(args[i])
+		if err != nil {
 			return nil, err
 		}
+		new_args[i] = arg
 	}
-	return args, nil
+	return new_args, nil
 }

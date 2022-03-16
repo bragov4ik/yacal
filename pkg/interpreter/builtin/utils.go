@@ -1,15 +1,15 @@
 package builtin
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/bragov4ik/yacal/pkg/interpreter/types"
-	"github.com/k0kubun/pp"
 )
 
 func UnaryOperation(i *types.Interpreter, args []interface{}) (a interface{}, err error) {
 	if l := len(args); l != 1 {
-		return nil, pp.Errorf("expected 2 arguments, but got %v", l)
+		return nil, fmt.Errorf("expected 1 arguments, but got %v", l)
 	}
 	args, err = i.EvalArgs(args)
 	if err != nil {
@@ -21,7 +21,7 @@ func UnaryOperation(i *types.Interpreter, args []interface{}) (a interface{}, er
 
 func BinaryOperation(i *types.Interpreter, args []interface{}) (a, b interface{}, err error) {
 	if l := len(args); l != 2 {
-		return nil, nil, pp.Errorf("expected 2 arguments, but got %v", l)
+		return nil, nil, fmt.Errorf("expected 2 arguments, but got %v", l)
 	}
 	args, err = i.EvalArgs(args)
 	if err != nil {
@@ -38,7 +38,7 @@ func toFloat64(value interface{}) (float64, error) {
 	case int:
 		return float64(v), nil
 	default:
-		return math.NaN(), pp.Errorf("Expected number, but go %v", value)
+		return math.NaN(), fmt.Errorf("Expected number, but got %v", value)
 	}
 }
 
@@ -47,7 +47,7 @@ func toBool(value interface{}) (bool, error) {
 	case bool:
 		return v, nil
 	default:
-		return false, pp.Errorf("Expected bool, but go %v", value)
+		return false, fmt.Errorf("Expected bool, but got %v", value)
 	}
 }
 
