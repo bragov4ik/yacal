@@ -44,8 +44,6 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 		return expr, nil
 	case ast.Null:
 		return expr, nil
-	case rune:
-		return expr, nil
 	case float64:
 		return expr, nil
 	case Func:

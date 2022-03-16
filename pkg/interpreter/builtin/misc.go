@@ -203,8 +203,6 @@ func ToString(arg interface{}) string {
 		return fmt.Sprint(arg)
 	case bool:
 		return fmt.Sprint(arg)
-	case rune:
-		return fmt.Sprint(arg)
 	case float64:
 		return fmt.Sprint(arg)
 	case ast.Null:
