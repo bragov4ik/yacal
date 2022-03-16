@@ -1,7 +1,10 @@
 package builtin
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/bragov4ik/yacal/pkg/interpreter/types"
 	"github.com/bragov4ik/yacal/pkg/parser/ast"
@@ -190,4 +193,57 @@ func Prog(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	}
 	// return result of last statement in prog
 	return res, nil
+}
+
+func ToString(arg interface{}) string {
+	switch v := arg.(type) {
+	case string:
+		return "\"" + fmt.Sprint(arg) + "\""
+	case int:
+		return fmt.Sprint(arg)
+	case bool:
+		return fmt.Sprint(arg)
+	case float64:
+		return fmt.Sprint(arg)
+	case ast.Null:
+		return "null"
+	case ast.Atom:
+		return fmt.Sprint(v.Val)
+	case ast.List:
+		if val, ok := v[0].(ast.Atom); ok && val.Val == "quote" {
+			return ToString(v[1])
+		}
+		var ret []string
+		for _, elem := range v {
+			ret = append(ret, ToString(elem))
+		}
+		return "(" + strings.Join(ret, " ") + ")"
+	default:
+		return ""
+	}
+}
+
+func Print(i *types.Interpreter, args []interface{}) (interface{}, error) {
+	args, err := i.EvalArgs(args)
+	if err != nil {
+		return nil, err
+	}
+	var output []string
+	for _, arg := range args {
+		output = append(output, ToString(arg))
+	}
+	fmt.Println(strings.Join(output, " "))
+	return ast.Null{}, nil
+}
+
+func Input(_ *types.Interpreter, args []interface{}) (interface{}, error) {
+	if len(args) > 0 {
+		return nil, fmt.Errorf("expected 0 arguments for input")
+	}
+	reader := bufio.NewReader(os.Stdin)
+	text, err := reader.ReadString('\n')
+	if err != nil {
+		return nil, err
+	}
+	return text[:len(text)-1], nil
 }
