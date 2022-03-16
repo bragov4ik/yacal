@@ -12,11 +12,9 @@ func Head(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	var l ast.List
-	if n, ok := _l.(ast.List); !ok {
-		return nil, fmt.Errorf("Expected list, but got %v", n)
-	} else {
-		l = n
+	l, ok := _l.(ast.List)
+	if !ok {
+		return nil, fmt.Errorf("Expected list, but got %v", _l)
 	}
 	if len(l) == 0 {
 		return nil, nil
@@ -29,13 +27,11 @@ func Tail(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	var l ast.List
-	if n, ok := _l.(ast.List); !ok {
-		return nil, fmt.Errorf("Expected list, but got %v", n)
-	} else {
-		l = n
+	l, ok := _l.(ast.List)
+	if !ok {
+		return nil, fmt.Errorf("Expected list, but got %v", _l)
 	}
-	if len(l) == 0 || len(l) == 1 {
+	if len(l) < 2 {
 		return nil, nil
 	}
 	return l[1:], nil
@@ -46,11 +42,9 @@ func Cons(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	var l ast.List
-	if n, ok := _l.(ast.List); !ok {
-		return nil, fmt.Errorf("Expected list, but got %v", n)
-	} else {
-		l = n
+	l, ok := _l.(ast.List)
+	if !ok {
+		return nil, fmt.Errorf("Expected list, but got %v", _l)
 	}
 	l = append(l, 0)
 	copy(l[1:], l)

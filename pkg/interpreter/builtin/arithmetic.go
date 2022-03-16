@@ -175,7 +175,7 @@ func divideReal(args []interface{}) (interface{}, error) {
 }
 
 func Divide(in *types.Interpreter, args []interface{}) (interface{}, error) {
-	if len(args) == 0 || len(args) == 1 {
+	if len(args) < 2 {
 		return nil, fmt.Errorf("Expected at least 2 numbers")
 	}
 	args, err := in.EvalArgs(args)
