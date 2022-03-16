@@ -67,7 +67,7 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 		}
 		f, ok := a.(Func)
 		if !ok {
-			return nil, pp.Errorf("Expected function, but got %v", f)
+			return nil, fmt.Errorf("Expected function, but got %v", f)
 		}
 		out, err := f(i, list[1:])
 		if err != nil {

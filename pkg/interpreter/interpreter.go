@@ -7,9 +7,11 @@ import (
 
 func initFunc() map[string]interface{} {
 	return map[string]interface{}{
-		// TODO: times, divide, head, tail, cons, prog, while
+		// TODO: head, tail, cons, prog, while
 		"+":      types.Func(builtin.Plus),
 		"-":      types.Func(builtin.Minus),
+		"*":      types.Func(builtin.Times),
+		"/":      types.Func(builtin.Divide),
 		"cond":   types.Func(builtin.Cond),
 		"lambda": types.Func(builtin.Lambda),
 		"quote":  types.Func(builtin.Quote),

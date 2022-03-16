@@ -1,12 +1,12 @@
 package interpreter_test
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/db47h/lex"
-	"github.com/k0kubun/pp"
 
 	"github.com/bragov4ik/yacal/pkg/interpreter"
 	"github.com/bragov4ik/yacal/pkg/lexer"
@@ -26,6 +26,8 @@ func evalTo(input string, elems ...interface{}) testCase { return testCase{input
 func TestElements(t *testing.T) {
 	tests := []testCase{
 		evalTo("(+ 1 2)", 3),
+		evalTo("(/ 3 2 1)", 1),
+		evalTo("(/ 3.0 2.0 2.0)", .75),
 		evalTo("(set x 2) x", nil, 2),
 		evalTo("(set mul2 (lambda (x) (+ x x))) (mul2 10)", nil, 20),
 		evalTo("'(1 2 3)", list(1, 2, 3)),
@@ -57,7 +59,7 @@ func TestElements(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(out, tc.output) {
-			t.Fatal(pp.Sprintf(
+			t.Fatal(fmt.Sprintf(
 				"%v should be evaluated into this\n%v\nbut got\n%v",
 				tc.input, tc.output, out,
 			))
