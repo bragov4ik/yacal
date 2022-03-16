@@ -1,7 +1,9 @@
 package builtin
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/bragov4ik/yacal/pkg/interpreter/types"
@@ -196,7 +198,7 @@ func Prog(i *types.Interpreter, args []interface{}) (interface{}, error) {
 func ToString(arg interface{}) string {
 	switch arg.(type) {
 	case string:
-		return fmt.Sprint(arg)
+		return "\"" + fmt.Sprint(arg) + "\""
 	case int:
 		return fmt.Sprint(arg)
 	case bool:
@@ -235,4 +237,13 @@ func Print(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	}
 	fmt.Println(strings.Join(output, " "))
 	return nil, nil
+}
+
+func Input(_ *types.Interpreter, args []interface{}) (interface{}, error) {
+	if len(args) > 0 {
+		return nil, fmt.Errorf("expected 0 arguments for input")
+	}
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadString('\n')
+	return text[:len(text)-1], nil
 }
