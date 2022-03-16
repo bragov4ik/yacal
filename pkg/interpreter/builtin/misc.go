@@ -134,10 +134,7 @@ func While(i *types.Interpreter, args []interface{}) (interface{}, error) {
 			return nil, fmt.Errorf("expected bool in first argument of while, but got %v", condition)
 		}
 		if condition.(bool) {
-			fmt.Println(i.GetState("a"))
 			i.Eval(body_statment)
-			fmt.Println(i.GetState("a"))
-
 		} else {
 			break
 		}
