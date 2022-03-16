@@ -1,8 +1,9 @@
 package builtin
 
 import (
+	"fmt"
+
 	"github.com/bragov4ik/yacal/pkg/interpreter/types"
-	"github.com/k0kubun/pp"
 )
 
 func plusInt(args []interface{}) (interface{}, error) {
@@ -11,7 +12,7 @@ func plusInt(args []interface{}) (interface{}, error) {
 		if n, ok := a.(int); ok {
 			acc += n
 		} else {
-			return nil, pp.Errorf("Expected number, but got %v", a)
+			return nil, fmt.Errorf("Expected number, but got %v", a)
 		}
 	}
 	return acc, nil
@@ -23,13 +24,16 @@ func plusReal(args []interface{}) (interface{}, error) {
 		if n, ok := a.(float64); ok {
 			acc += n
 		} else {
-			return nil, pp.Errorf("Expected number, but got %v", a)
+			return nil, fmt.Errorf("Expected number, but got %v", a)
 		}
 	}
 	return acc, nil
 }
 
 func Plus(in *types.Interpreter, args []interface{}) (interface{}, error) {
+	if len(args) == 0 {
+		return nil, fmt.Errorf("Expected at least 1 number")
+	}
 	args, err := in.EvalArgs(args)
 	if err != nil {
 		return nil, err
@@ -44,7 +48,7 @@ func Plus(in *types.Interpreter, args []interface{}) (interface{}, error) {
 func minusInt(args []interface{}) (interface{}, error) {
 	acc := int(0)
 	if n, ok := args[0].(int); !ok {
-		return nil, pp.Errorf("Expected number, but got %v", n)
+		return nil, fmt.Errorf("Expected number, but got %v", n)
 	} else {
 		acc = n
 	}
@@ -53,7 +57,7 @@ func minusInt(args []interface{}) (interface{}, error) {
 		if n, ok := a.(int); ok {
 			acc -= n
 		} else {
-			return nil, pp.Errorf("Expected number, but got %v", a)
+			return nil, fmt.Errorf("Expected number, but got %v", a)
 		}
 	}
 	return acc, nil
@@ -62,7 +66,7 @@ func minusInt(args []interface{}) (interface{}, error) {
 func minusReal(args []interface{}) (interface{}, error) {
 	acc := float64(0)
 	if n, ok := args[0].(float64); !ok {
-		return nil, pp.Errorf("Expected number, but got %v", n)
+		return nil, fmt.Errorf("Expected number, but got %v", n)
 	} else {
 		acc = n
 	}
@@ -71,7 +75,7 @@ func minusReal(args []interface{}) (interface{}, error) {
 		if n, ok := a.(float64); ok {
 			acc -= n
 		} else {
-			return nil, pp.Errorf("Expected number, but got %v", a)
+			return nil, fmt.Errorf("Expected number, but got %v", a)
 		}
 	}
 	return acc, nil
@@ -79,7 +83,7 @@ func minusReal(args []interface{}) (interface{}, error) {
 
 func Minus(in *types.Interpreter, args []interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, pp.Errorf("Expected at least 1 number")
+		return nil, fmt.Errorf("Expected at least 1 number")
 	}
 	args, err := in.EvalArgs(args)
 	if err != nil {
@@ -89,6 +93,99 @@ func Minus(in *types.Interpreter, args []interface{}) (interface{}, error) {
 		return v, nil
 	}
 	return minusReal(args)
+}
+
+func timesInt(args []interface{}) (interface{}, error) {
+	acc := int(1)
+	for _, a := range args {
+		if n, ok := a.(int); ok {
+			acc *= n
+		} else {
+			return nil, fmt.Errorf("Expected number, but got %v", a)
+		}
+	}
+	return acc, nil
+}
+
+func timesReal(args []interface{}) (interface{}, error) {
+	acc := float64(1.0)
+	for _, a := range args {
+		if n, ok := a.(float64); ok {
+			acc *= n
+		} else {
+			return nil, fmt.Errorf("Expected number, but got %v", a)
+		}
+	}
+	return acc, nil
+}
+
+func Times(in *types.Interpreter, args []interface{}) (interface{}, error) {
+	if len(args) == 0 {
+		return nil, fmt.Errorf("Expected at least 1 number")
+	}
+	args, err := in.EvalArgs(args)
+	if err != nil {
+		return nil, err
+	}
+	if v, err := timesInt(args); err == nil {
+		return v, nil
+	}
+	return timesReal(args)
+}
+
+func divideInt(args []interface{}) (interface{}, error) {
+	nom := int(1)
+	if n, ok := args[0].(int); !ok {
+		return nil, fmt.Errorf("Expected number, but got %v", n)
+	} else {
+		nom = n
+	}
+	denom := int(1)
+	_denom, err := timesInt(args[1:])
+	if err != nil {
+		return nil, err
+	}
+	if n, ok := _denom.(int); !ok {
+		return nil, fmt.Errorf("Expected number, but got %v", n)
+	} else {
+		denom = n
+	}
+	// Perform integer division
+	return nom / denom, nil
+}
+
+func divideReal(args []interface{}) (interface{}, error) {
+	nominator := float64(1)
+	if n, ok := args[0].(float64); !ok {
+		return nil, fmt.Errorf("Expected number, but got %v", n)
+	} else {
+		nominator = n
+	}
+	denominator := float64(1)
+	product, err := timesReal(args[1:])
+	if err != nil {
+		return nil, err
+	}
+	if n, ok := product.(float64); !ok {
+		return nil, fmt.Errorf("Expected number, but got %v", n)
+	} else {
+		denominator = n
+	}
+	return nominator / denominator, nil
+}
+
+func Divide(in *types.Interpreter, args []interface{}) (interface{}, error) {
+	if len(args) == 0 || len(args) == 1 {
+		return nil, fmt.Errorf("Expected at least 2 numbers")
+	}
+	args, err := in.EvalArgs(args)
+	if err != nil {
+		return nil, err
+	}
+	if v, err := divideInt(args); err == nil {
+		return v, nil
+	}
+	return divideReal(args)
 }
 
 func Quals(i *types.Interpreter, args []interface{}) (interface{}, error) {
