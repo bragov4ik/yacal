@@ -220,6 +220,8 @@ func ToString(arg interface{}) string {
 		return fmt.Sprint(arg)
 	case float64:
 		return fmt.Sprint(arg)
+	case types.Func:
+		return fmt.Sprintf("{func: %s}", arg)
 	case ast.Null:
 		return "null"
 	case ast.Atom:
