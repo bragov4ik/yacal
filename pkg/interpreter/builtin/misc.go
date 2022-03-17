@@ -174,11 +174,11 @@ func Prog(i *types.Interpreter, args []interface{}) (interface{}, error) {
 		return nil, fmt.Errorf("Expected argument list and program body")
 	}
 	for _, a := range al {
-		if arg, ok := a.(ast.Atom); ok {
-			atoms_context = append(atoms_context, arg.Val)
-		} else {
+		arg, ok := a.(ast.Atom)
+		if !ok {
 			return nil, fmt.Errorf("Expected atoms in argument list")
 		}
+		atoms_context = append(atoms_context, arg.Val)
 	}
 	body, ok := args[1].(ast.List)
 	if !ok {
@@ -187,9 +187,9 @@ func Prog(i *types.Interpreter, args []interface{}) (interface{}, error) {
 
 	// Save state
 	old_state := map[string]interface{}{}
-	for iter_number := 0; iter_number < len(args); iter_number++ {
+	for _, a := range atoms_context {
 		// Save nils to delete from context later
-		old_state[atoms_context[iter_number]], _ = i.GetState(atoms_context[iter_number])
+		old_state[a], _ = i.GetState(a)
 	}
 
 	var res interface{} = ast.Null{}
