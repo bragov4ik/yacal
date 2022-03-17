@@ -231,7 +231,7 @@ func ToString(arg interface{}) string {
 		return fmt.Sprint(v.Val)
 	case ast.List:
 		if val, ok := v[0].(ast.Atom); ok && val.Val == "quote" {
-			return ToString(v[1])
+			return "'" + ToString(v[1])
 		}
 		var ret []string
 		for _, elem := range v {

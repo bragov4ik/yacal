@@ -11,6 +11,7 @@ import (
 	"github.com/k0kubun/pp"
 
 	"github.com/bragov4ik/yacal/pkg/interpreter"
+	"github.com/bragov4ik/yacal/pkg/interpreter/builtin"
 	"github.com/bragov4ik/yacal/pkg/lexer"
 	"github.com/bragov4ik/yacal/pkg/parser"
 )
@@ -39,7 +40,7 @@ func runRepl() {
 			if err != nil {
 				panic(fmt.Sprintf("Failed to interpret %v: %v", v, err))
 			}
-			pp.Println(v)
+			fmt.Println(builtin.ToString(v))
 		}
 	}
 }

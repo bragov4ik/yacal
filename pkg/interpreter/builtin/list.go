@@ -34,13 +34,18 @@ func Tail(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	if len(l) < 2 {
 		return ast.Null{}, nil
 	}
-	return l[1:], nil
+	new_l := ast.List{}
+	copy(l[1:], new_l)
+	return l, nil
 }
 
 func Cons(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	item, _l, err := BinaryOperation(i, args)
 	if err != nil {
 		return nil, err
+	}
+	if _, ok := _l.(ast.Null); ok {
+		return ast.List{item}, nil
 	}
 	l, ok := _l.(ast.List)
 	if !ok {
