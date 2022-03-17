@@ -1,5 +1,7 @@
-(prog (x y) (
-    (setq x 1)
-    (setq y 2)
-    (return (plus x y))
-))
+(set x 123123)
+(print (prog (x y) (
+    (set x 1)
+    (set y 2)
+    (+ x y)
+))) // 3
+(print x) // 123123 (x from prog must be forgotten)
