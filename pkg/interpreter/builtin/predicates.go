@@ -71,7 +71,7 @@ func ToInt(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	if !ok {
 		return nil, fmt.Errorf("expected string as first argument of toint, but got %v", v)
 	}
-	return strconv.ParseInt(string_v, 10, 64)
+	return strconv.Atoi(string_v)
 }
 
 func ToReal(i *types.Interpreter, args []interface{}) (interface{}, error) {

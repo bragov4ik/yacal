@@ -10,10 +10,11 @@
 (print '(1 2 '(3 4 "a")))
 (print (lambda (a b) (+ a b)))
 
-(set f (lambda (x) (cond (< x 2) 1 (+ (f (- x 1)) (f (- x 2))))))
+(func f (x) (cond (< x 2) 1 (+ (f (- x 1)) (f (- x 2)))))
 (print (f 0))
 (print (f 1))
 (print (f 2))
 (print (f 3))
 (print (f 4))
 (print (f 5))
+(print (f (toint (input))))
