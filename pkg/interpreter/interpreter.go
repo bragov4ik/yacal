@@ -26,6 +26,8 @@ func initFunc() map[string]interface{} {
 		">=":     types.Func(builtin.GreaterOrEq),
 		"<":      types.Func(builtin.Less),
 		"<=":     types.Func(builtin.LessOrEq),
+		"toint":  types.Func(builtin.ToInt),
+		"toreal": types.Func(builtin.ToReal),
 		"isreal": types.Func(builtin.IsReal),
 		"isbool": types.Func(builtin.IsBool),
 		"isnull": types.Func(builtin.IsNull),

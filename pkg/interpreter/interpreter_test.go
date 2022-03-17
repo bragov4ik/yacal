@@ -53,6 +53,7 @@ func TestElements(t *testing.T) {
 					x))
 				x
 				y`, nil, nil, nil, 334, 404, 404),
+		evalTo("(= (toint \"123\") (toreal \"123.0000\"))", true),
 		// evalTo("(car '(1 2 3))", list(atom("car"), list(atom("quote"), list(1, 2, 3)))),
 	}
 
