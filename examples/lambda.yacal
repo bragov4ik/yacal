@@ -1,4 +1,7 @@
-(lambda () (1 2 3 4))
-(setq myFunc (lambda (p) (cond (less p 0) plus minus)))
-((myFunc -1) 1 2) // returns 3
-(((lambda (p) (cond (less p 0) plus minus)) +1 1 2) // returns -1
+(print ((lambda () '(1 2 3 4))))
+(set myFunc (lambda (p) (cond (< p 0) + -)))
+(print ((myFunc -1) 1 2)) // returns 3
+(print (
+    ((lambda (p) (cond (< p 0) + -)) +1)
+    1
+    2)) // returns -1

@@ -1,22 +1,24 @@
 // literals
-5
--5
-+5
-5.0
--5.0
-+5.0
-0123
-false
-true
-null
-"abcd!@#$%^&*()_="
+(print 5)
+(print -5)
+(print +5)
+(print 5.0)
+(print -5.0)
+(print +5.0)
+(print 0123)
+(print false)
+(print true)
+(print null)
+(print "abcd!@#$%^&*()_=")
+(print)
 
 // atoms
-(setq a4 0)
-a4
-'a4
+(print (set a4 0))
+(print a4)
+(print 'a4)
+(print)
 
 // lists
-'(5 1 2 a4)
-'(null (null (null)))
-'(4 minus times divide)
+(print '(5 1 2 a4))
+(print '(null (null (null))))
+(print '(4 minus times divide))

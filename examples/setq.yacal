@@ -1,4 +1,6 @@
 (set x 5)
-(set y (plus 1 2))
+(set y (+ 1 2))
 (set z null)
 (set t '(+ - * /))
+
+(print x y z t)

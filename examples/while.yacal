@@ -1,5 +1,5 @@
-(setq i 0)
-(while (less i 10) (setq i (plus i 1)))
+(set i 0)
+(while (< i 10) (set i (+ i 1)))
 
 (while true (break))
 

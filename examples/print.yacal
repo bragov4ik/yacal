@@ -9,6 +9,7 @@
 (print abc)
 (print '(1 2 '(3 4 "a")))
 (print (lambda (a b) (+ a b)))
+(print)
 
 (func f (x) (cond (< x 2) 1 (+ (f (- x 1)) (f (- x 2)))))
 (print (f 0))
