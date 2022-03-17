@@ -44,7 +44,7 @@ func toFloat64(value interface{}) (float64, error) {
 	case int64:
 		return float64(v), nil
 	default:
-		return math.NaN(), fmt.Errorf("Expected number, but got %t", value)
+		return math.NaN(), fmt.Errorf("Expected number, but got %T", value)
 	}
 }
 
