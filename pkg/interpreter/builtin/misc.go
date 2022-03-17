@@ -36,7 +36,11 @@ func Lambda(_ *types.Interpreter, args []interface{}) (interface{}, error) {
 
 		old_state := map[string]interface{}{}
 		for i := 0; i < len(args); i++ {
-			if old := in.SetState(arglist[i], args[i]); old != nil {
+			val, err := in.Eval(args[i])
+			if err != nil {
+				return nil, err
+			}
+			if old := in.SetState(arglist[i], val); old != nil {
 				old_state[arglist[i]] = old
 			}
 		}
