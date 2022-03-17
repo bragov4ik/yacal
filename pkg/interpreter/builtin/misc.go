@@ -40,9 +40,8 @@ func Lambda(_ *types.Interpreter, args []interface{}) (interface{}, error) {
 			if err != nil {
 				return nil, err
 			}
-			if old := in.SetState(arglist[i], val); old != nil {
-				old_state[arglist[i]] = old
-			}
+			old := in.SetState(arglist[i], val)
+			old_state[arglist[i]] = old
 		}
 
 		v, err := in.Eval(body)
