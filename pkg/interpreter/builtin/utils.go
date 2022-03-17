@@ -37,6 +37,12 @@ func toFloat64(value interface{}) (float64, error) {
 		return float64(v), nil
 	case int:
 		return float64(v), nil
+	case int16:
+		return float64(v), nil
+	case int32:
+		return float64(v), nil
+	case int64:
+		return float64(v), nil
 	default:
 		return math.NaN(), fmt.Errorf("Expected number, but got %v", value)
 	}
