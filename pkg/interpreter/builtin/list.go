@@ -34,7 +34,7 @@ func Tail(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	if len(l) < 2 {
 		return ast.Null{}, nil
 	}
-	new_l := ast.List{}
+	var new_l ast.List = make([]interface{}, len(l)-1)
 	copy(new_l, l[1:])
 	return new_l, nil
 }
