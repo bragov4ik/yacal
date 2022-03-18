@@ -36,7 +36,7 @@ func Tail(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	}
 	new_l := ast.List{}
 	copy(l[1:], new_l)
-	return l, nil
+	return new_l, nil
 }
 
 func Cons(i *types.Interpreter, args []interface{}) (interface{}, error) {
