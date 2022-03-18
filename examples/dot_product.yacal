@@ -1,0 +1,23 @@
+(print "Enter n:")
+(set n (toint (input)))
+
+(func enter_n (n) (
+    cond (> n 0)
+    (cons (toint (input)) (enter_n (- n 1)))
+    '()
+))
+
+(print "Enter v1:")
+(set v1 (enter_n n))
+(print)
+(print "Enter v2:")
+(set v2 (enter_n n))
+(print)
+
+(func dot (v1 v2) (
+    cond (isnull v1)
+    '()
+    (cons (* (head v1) (head v2)) (dot (tail v1) (tail v2)))
+))
+
+(print (dot v1 v2))
