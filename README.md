@@ -73,5 +73,9 @@ For instance, [dot_product.yacal](https://github.com/bragov4ik/yacal/tree/master
 (print (dot v1 v2))
 ```
 
+## Authors
+
+[Ivan Rybin](https://github.com/i1i1), [Kirill Ivanov](https://github.com/bragov4ik), [Lev Lymarenko](https://github.com/sevenzing), [Ilya Kolomin](https://github.com/Ilya-Kolomin) 
+
 ## License
 GNU General Public License v3.0, see [LICENSE](https://github.com/bragov4ik/yacal/tree/master/LICENSE)
