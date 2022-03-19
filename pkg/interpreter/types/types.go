@@ -91,7 +91,9 @@ func (i *Interpreter) EvalArgs(args interface{}) (interface{}, error) {
 			return nil, err
 		}
 		return arg, nil
-	default: // ast.Empty
+	case ast.Empty:
 		return arg, nil
+	default:
+		return nil, fmt.Errorf("unexpected type %T", arg)
 	}
 }
