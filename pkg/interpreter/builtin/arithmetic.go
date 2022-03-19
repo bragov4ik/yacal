@@ -22,7 +22,7 @@ func Plus(in *types.Interpreter, args interface{}) (interface{}, error) {
 	if ok1 && ok2 {
 		return float1 + float2, nil
 	}
-	return nil, fmt.Errorf("expected numbers, but got %v %v", arg1, arg2)
+	return nil, fmt.Errorf("expected numbers, but got %T %T", arg1, arg2)
 }
 
 func Minus(in *types.Interpreter, args interface{}) (interface{}, error) {
@@ -41,7 +41,7 @@ func Minus(in *types.Interpreter, args interface{}) (interface{}, error) {
 	if ok1 && ok2 {
 		return float1 - float2, nil
 	}
-	return nil, fmt.Errorf("expected numbers, but got %v %v", arg1, arg2)
+	return nil, fmt.Errorf("expected numbers, but got %T %T", arg1, arg2)
 }
 
 func Times(in *types.Interpreter, args interface{}) (interface{}, error) {
@@ -60,7 +60,7 @@ func Times(in *types.Interpreter, args interface{}) (interface{}, error) {
 	if ok1 && ok2 {
 		return float1 * float2, nil
 	}
-	return nil, fmt.Errorf("expected numbers, but got %v %v", arg1, arg2)
+	return nil, fmt.Errorf("expected numbers, but got %T %T", arg1, arg2)
 }
 
 func Divide(in *types.Interpreter, args interface{}) (interface{}, error) {
@@ -79,7 +79,7 @@ func Divide(in *types.Interpreter, args interface{}) (interface{}, error) {
 	if ok1 && ok2 {
 		return float1 / float2, nil
 	}
-	return nil, fmt.Errorf("expected numbers, but got %v %v", arg1, arg2)
+	return nil, fmt.Errorf("expected numbers, but got %T %T", arg1, arg2)
 }
 
 func Quals(i *types.Interpreter, args interface{}) (interface{}, error) {
