@@ -65,7 +65,7 @@ For instance, [dot_product.yacal](https://github.com/bragov4ik/yacal/tree/master
 (print)
 
 (func dot (v1 v2) (
-    cond (isnull v1)
+    cond (isempty v1)
     '()
     (cons (* (head v1) (head v2)) (dot (tail v1) (tail v2)))
 ))

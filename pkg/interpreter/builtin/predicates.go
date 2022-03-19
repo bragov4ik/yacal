@@ -87,6 +87,19 @@ func IsList(i *types.Interpreter, args interface{}) (interface{}, error) {
 	return ok1 || ok2, nil
 }
 
+func IsEmpty(i *types.Interpreter, args interface{}) (interface{}, error) {
+	v, err := UnaryOperation(args)
+	if err != nil {
+		return nil, err
+	}
+	v, err = i.Eval(v)
+	if err != nil {
+		return nil, err
+	}
+	_, ok := v.(ast.Empty)
+	return ok, nil
+}
+
 func ToInt(i *types.Interpreter, args interface{}) (interface{}, error) {
 	v, err := UnaryOperation(args)
 	if err != nil {
