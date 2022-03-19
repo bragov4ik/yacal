@@ -35,6 +35,12 @@ func runRepl() {
 		p := parser.New(l)
 		ast, err := p.Parse()
 
+		if err != nil {
+			panic(fmt.Errorf("syntax error: %v", err))
+		}
+
+		ast = interpreter.TreeTraversal(ast)
+
 		for _, st := range ast {
 			v, err := i.Eval(st)
 			if err != nil {
@@ -67,6 +73,8 @@ func main() {
 		if err != nil {
 			panic(fmt.Errorf("got an error while building an ast for file %v: %v", path, err))
 		}
+
+		ast = interpreter.TreeTraversal(ast)
 
 		for _, st := range ast {
 			v, err := i.Eval(st)

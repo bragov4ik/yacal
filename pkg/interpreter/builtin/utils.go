@@ -2,33 +2,46 @@ package builtin
 
 import (
 	"fmt"
+	"github.com/bragov4ik/yacal/pkg/parser/ast"
 	"math"
-
-	"github.com/bragov4ik/yacal/pkg/interpreter/types"
 )
 
-func UnaryOperation(i *types.Interpreter, args []interface{}) (a interface{}, err error) {
-	if l := len(args); l != 1 {
+func Len(arg interface{}) int {
+	res := 0
+	cur := arg
+	for _, ok := cur.(ast.Empty); !ok; _, ok = cur.(ast.Empty) {
+		res++
+		cons, _ := cur.(ast.Cons)
+		cur = cons.Next
+	}
+	return res
+}
+
+func UnaryOperation(args interface{}) (a interface{}, err error) {
+	if l := Len(args); l != 1 {
 		return nil, fmt.Errorf("expected 1 arguments, but got %v", l)
 	}
-	args, err = i.EvalArgs(args)
-	if err != nil {
-		return
-	}
-	return args[0], nil
+	cons, _ := args.(ast.Cons)
+	return cons.Val, nil
 
 }
 
-func BinaryOperation(i *types.Interpreter, args []interface{}) (a, b interface{}, err error) {
-	if l := len(args); l != 2 {
+func BinaryOperation(args interface{}) (a, b interface{}, err error) {
+	if l := Len(args); l != 2 {
 		return nil, nil, fmt.Errorf("expected 2 arguments, but got %v", l)
 	}
-	args, err = i.EvalArgs(args)
-	if err != nil {
-		return
+	cons1, _ := args.(ast.Cons)
+	cons2, _ := cons1.Next.(ast.Cons)
+	return cons1.Val, cons2.Val, nil
+}
+func TernaryOperation(args interface{}) (a, b, c interface{}, err error) {
+	if l := Len(args); l != 3 {
+		return nil, nil, nil, fmt.Errorf("expected 2 arguments, but got %v", l)
 	}
-	return args[0], args[1], nil
-
+	cons1, _ := args.(ast.Cons)
+	cons2, _ := cons1.Next.(ast.Cons)
+	cons3, _ := cons2.Next.(ast.Cons)
+	return cons1.Val, cons2.Val, cons3.Val, nil
 }
 
 func toFloat64(value interface{}) (float64, error) {
@@ -49,6 +62,7 @@ func toFloat64(value interface{}) (float64, error) {
 }
 
 func toBool(value interface{}) (bool, error) {
+
 	switch v := value.(type) {
 	case bool:
 		return v, nil
@@ -57,8 +71,8 @@ func toBool(value interface{}) (bool, error) {
 	}
 }
 
-func BinaryFloatOperation(i *types.Interpreter, args []interface{}) (a, b float64, err error) {
-	_a, _b, err := BinaryOperation(i, args)
+func BinaryFloatOperation(args interface{}) (a, b float64, err error) {
+	_a, _b, err := BinaryOperation(args)
 	if err != nil {
 		return
 	}
@@ -70,8 +84,8 @@ func BinaryFloatOperation(i *types.Interpreter, args []interface{}) (a, b float6
 	return
 }
 
-func BinaryBoolOperation(i *types.Interpreter, args []interface{}) (a, b bool, err error) {
-	_a, _b, err := BinaryOperation(i, args)
+func BinaryBoolOperation(args interface{}) (a, b bool, err error) {
+	_a, _b, err := BinaryOperation(args)
 	if err != nil {
 		return
 	}

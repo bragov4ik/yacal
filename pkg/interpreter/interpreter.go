@@ -7,7 +7,6 @@ import (
 
 func initFunc() map[string]interface{} {
 	return map[string]interface{}{
-		// TODO: prog, while
 		"+":      types.Func(builtin.Plus),
 		"-":      types.Func(builtin.Minus),
 		"*":      types.Func(builtin.Times),
@@ -27,6 +26,7 @@ func initFunc() map[string]interface{} {
 		"<":      types.Func(builtin.Less),
 		"<=":     types.Func(builtin.LessOrEq),
 		"toint":  types.Func(builtin.ToInt),
+		"isint":  types.Func(builtin.IsInt),
 		"toreal": types.Func(builtin.ToReal),
 		"isreal": types.Func(builtin.IsReal),
 		"isbool": types.Func(builtin.IsBool),
