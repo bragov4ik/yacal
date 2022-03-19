@@ -7,52 +7,51 @@ import (
 	"github.com/bragov4ik/yacal/pkg/parser/ast"
 )
 
-func Head(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	_l, err := UnaryOperation(i, args)
+func Head(i *types.Interpreter, args interface{}) (interface{}, error) {
+	args, err := i.EvalArgs(args)
+	if err != nil {
+		return args, err
+	}
+	_l, err := UnaryOperation(args)
 	if err != nil {
 		return nil, err
 	}
-	l, ok := _l.(ast.List)
+	l, ok := _l.(ast.Cons)
 	if !ok {
-		return nil, fmt.Errorf("Expected list, but got %v", _l)
+		return nil, fmt.Errorf("expected non-empty list, but got %v", _l)
 	}
-	if len(l) == 0 {
-		return ast.Null{}, nil
-	}
-	return l[0], nil
+	return l.Val, nil
 }
 
-func Tail(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	_l, err := UnaryOperation(i, args)
+func Tail(i *types.Interpreter, args interface{}) (interface{}, error) {
+	args, err := i.EvalArgs(args)
+	if err != nil {
+		return args, err
+	}
+	_l, err := UnaryOperation(args)
 	if err != nil {
 		return nil, err
 	}
-	l, ok := _l.(ast.List)
+	l, ok := _l.(ast.Cons)
 	if !ok {
-		return nil, fmt.Errorf("Expected list, but got %v", _l)
+		return nil, fmt.Errorf("expected non-empty list, but got %v", _l)
 	}
-	if len(l) < 2 {
-		return ast.Null{}, nil
-	}
-	var new_l ast.List = make([]interface{}, len(l)-1)
-	copy(new_l, l[1:])
-	return new_l, nil
+	return l.Next, nil
 }
 
-func Cons(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	item, _l, err := BinaryOperation(i, args)
+func Cons(i *types.Interpreter, args interface{}) (interface{}, error) {
+	args, err := i.EvalArgs(args)
+	if err != nil {
+		return args, err
+	}
+	item, _l, err := BinaryOperation(args)
 	if err != nil {
 		return nil, err
 	}
-	if _, ok := _l.(ast.Null); ok {
-		return ast.List{item}, nil
+	if _, ok1 := _l.(ast.Cons); !ok1 {
+		if _, ok2 := _l.(ast.Empty); !ok2 {
+			return nil, fmt.Errorf("expected second argument to be list, but got %v", _l)
+		}
 	}
-	l, ok := _l.(ast.List)
-	if !ok {
-		return nil, fmt.Errorf("Expected list, but got %v", _l)
-	}
-	l = append(l, 0)
-	copy(l[1:], l)
-	l[0] = item
-	return l, nil
+	return ast.Cons{Val: item, Next: _l}, nil
 }

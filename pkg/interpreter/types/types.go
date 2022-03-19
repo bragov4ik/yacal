@@ -11,7 +11,7 @@ type (
 		state map[string]interface{}
 	}
 
-	Func func(i *Interpreter, args []interface{}) (interface{}, error)
+	Func func(i *Interpreter, args interface{}) (interface{}, error)
 )
 
 func NewInterpreter(state map[string]interface{}) *Interpreter { return &Interpreter{state} }
@@ -48,6 +48,8 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 		return expr, nil
 	case Func:
 		return expr, nil
+	case ast.Empty:
+		return expr, nil
 
 	case ast.Atom:
 		name := expr.(ast.Atom).Val
@@ -56,20 +58,17 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 		} else {
 			return nil, fmt.Errorf("Unexpected atom '%v'", name)
 		}
-	case ast.List:
-		list := expr.(ast.List)
-		if len(list) == 0 {
-			return expr, nil
-		}
-		a, err := i.Eval(list[0])
+	case ast.Cons:
+		list := expr.(ast.Cons)
+		a, err := i.Eval(list.Val)
 		if err != nil {
-			return nil, fmt.Errorf("Error while evaluation of function (%v): %v", list[0], err)
+			return nil, fmt.Errorf("Error while evaluation of function (%v): %v", list.Val, err)
 		}
 		f, ok := a.(Func)
 		if !ok {
 			return nil, fmt.Errorf("Expected function, but got %v", f)
 		}
-		out, err := f(i, list[1:])
+		out, err := f(i, list.Next)
 		if err != nil {
 			return nil, fmt.Errorf("Error while executing function: %v", err)
 		}
@@ -79,15 +78,20 @@ func (i *Interpreter) Eval(expr interface{}) (interface{}, error) {
 	}
 }
 
-func (in *Interpreter) EvalArgs(args []interface{}) ([]interface{}, error) {
-	new_args := make([]interface{}, len(args))
-	copy(new_args, args)
-	for i := 0; i < len(args); i++ {
-		arg, err := in.Eval(args[i])
+func (i *Interpreter) EvalArgs(args interface{}) (interface{}, error) {
+	switch arg := args.(type) {
+	case ast.Cons:
+		var err error
+		arg.Val, err = i.Eval(arg.Val)
 		if err != nil {
 			return nil, err
 		}
-		new_args[i] = arg
+		arg.Next, err = i.EvalArgs(arg.Next)
+		if err != nil {
+			return nil, err
+		}
+		return arg, nil
+	default: // ast.Empty
+		return arg, nil
 	}
-	return new_args, nil
 }

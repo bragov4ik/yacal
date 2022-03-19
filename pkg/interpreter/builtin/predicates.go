@@ -8,8 +8,12 @@ import (
 	"github.com/bragov4ik/yacal/pkg/parser/ast"
 )
 
-func IsInt(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	v, err := UnaryOperation(i, args)
+func IsInt(i *types.Interpreter, args interface{}) (interface{}, error) {
+	v, err := UnaryOperation(args)
+	if err != nil {
+		return nil, err
+	}
+	v, err = i.Eval(v)
 	if err != nil {
 		return nil, err
 	}
@@ -17,8 +21,12 @@ func IsInt(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	return ok, nil
 }
 
-func IsReal(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	v, err := UnaryOperation(i, args)
+func IsReal(i *types.Interpreter, args interface{}) (interface{}, error) {
+	v, err := UnaryOperation(args)
+	if err != nil {
+		return nil, err
+	}
+	v, err = i.Eval(v)
 	if err != nil {
 		return nil, err
 	}
@@ -26,8 +34,12 @@ func IsReal(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	return ok, nil
 }
 
-func IsBool(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	v, err := UnaryOperation(i, args)
+func IsBool(i *types.Interpreter, args interface{}) (interface{}, error) {
+	v, err := UnaryOperation(args)
+	if err != nil {
+		return nil, err
+	}
+	v, err = i.Eval(v)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +47,12 @@ func IsBool(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	return ok, nil
 }
 
-func IsNull(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	v, err := UnaryOperation(i, args)
+func IsNull(i *types.Interpreter, args interface{}) (interface{}, error) {
+	v, err := UnaryOperation(args)
+	if err != nil {
+		return nil, err
+	}
+	v, err = i.Eval(v)
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +60,12 @@ func IsNull(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	return ok, nil
 }
 
-func IsAtom(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	v, err := UnaryOperation(i, args)
+func IsAtom(i *types.Interpreter, args interface{}) (interface{}, error) {
+	v, err := UnaryOperation(args)
+	if err != nil {
+		return nil, err
+	}
+	v, err = i.Eval(v)
 	if err != nil {
 		return nil, err
 	}
@@ -53,17 +73,26 @@ func IsAtom(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	return ok, nil
 }
 
-func IsList(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	v, err := UnaryOperation(i, args)
+func IsList(i *types.Interpreter, args interface{}) (interface{}, error) {
+	v, err := UnaryOperation(args)
 	if err != nil {
 		return nil, err
 	}
-	_, ok := v.(ast.List)
-	return ok, nil
+	v, err = i.Eval(v)
+	if err != nil {
+		return nil, err
+	}
+	_, ok1 := v.(ast.Cons)
+	_, ok2 := v.(ast.Empty)
+	return ok1 || ok2, nil
 }
 
-func ToInt(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	v, err := UnaryOperation(i, args)
+func ToInt(i *types.Interpreter, args interface{}) (interface{}, error) {
+	v, err := UnaryOperation(args)
+	if err != nil {
+		return nil, err
+	}
+	v, err = i.Eval(v)
 	if err != nil {
 		return nil, err
 	}
@@ -74,8 +103,12 @@ func ToInt(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	return strconv.Atoi(string_v)
 }
 
-func ToReal(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	v, err := UnaryOperation(i, args)
+func ToReal(i *types.Interpreter, args interface{}) (interface{}, error) {
+	v, err := UnaryOperation(args)
+	if err != nil {
+		return nil, err
+	}
+	v, err = i.Eval(v)
 	if err != nil {
 		return nil, err
 	}

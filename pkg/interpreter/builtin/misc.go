@@ -10,43 +10,48 @@ import (
 	"github.com/bragov4ik/yacal/pkg/parser/ast"
 )
 
-func Lambda(_ *types.Interpreter, args []interface{}) (interface{}, error) {
-	if len(args) != 2 {
-		return nil, fmt.Errorf("Expected argument list and function body")
+func Lambda(_ *types.Interpreter, args interface{}) (interface{}, error) {
+	arg1, body, err := BinaryOperation(args)
+	if err != nil {
+		return nil, fmt.Errorf("expected 2 arguments for lambda")
 	}
 
-	arglist := []string{}
-	al, ok := args[0].(ast.List)
-	if !ok {
-		return nil, fmt.Errorf("Expected argument list and function body")
-	}
-	for _, a := range al {
-		if arg, ok := a.(ast.Atom); ok {
-			arglist = append(arglist, arg.Val)
-		} else {
-			return nil, fmt.Errorf("Expected argument list and function body")
+	var arglist []string
+
+	for _, isEmpty := arg1.(ast.Empty); !isEmpty; _, isEmpty = arg1.(ast.Empty) {
+		cons, isCons := arg1.(ast.Cons)
+		if !isCons {
+			return nil, fmt.Errorf("exepcted first argument to be list")
 		}
+		arg, isAtom := cons.Val.(ast.Atom)
+		if !isAtom {
+			return nil, fmt.Errorf("expected first argument to contains only identifiers")
+		}
+		arglist = append(arglist, arg.Val)
+		arg1 = cons.Next
 	}
 
-	body := args[1]
-	lambda := func(in *types.Interpreter, args []interface{}) (interface{}, error) {
-		if len(arglist) != len(args) {
-			return nil, fmt.Errorf("Expected %v arguments for function, but have %v", len(arglist), len(args))
+	lambda := func(in *types.Interpreter, args interface{}) (interface{}, error) {
+		if l1, l2 := len(arglist), Len(args); l1 != l2 {
+			return nil, fmt.Errorf("expected %v arguments for function, but have %v", l1, l2)
 		}
 
-		old_state := map[string]interface{}{}
-		for i := 0; i < len(args); i++ {
-			val, err := in.Eval(args[i])
+		oldState := map[string]interface{}{}
+
+		for i := 0; i < len(arglist); i++ {
+			cons, _ := args.(ast.Cons)
+			val, err := in.Eval(cons.Val)
 			if err != nil {
 				return nil, err
 			}
 			old := in.SetState(arglist[i], val)
-			old_state[arglist[i]] = old
+			oldState[arglist[i]] = old
+			args = cons.Next
 		}
 
 		v, err := in.Eval(body)
 
-		for k, v := range old_state {
+		for k, v := range oldState {
 			if v == nil {
 				in.DeleteState(k)
 			} else {
@@ -60,15 +65,13 @@ func Lambda(_ *types.Interpreter, args []interface{}) (interface{}, error) {
 	return types.Func(lambda), nil
 }
 
-func Set(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	if len(args) != 2 {
-		return nil, fmt.Errorf("Expected 2 argument for set")
-	}
-	arg, ok := args[0].(ast.Atom)
+func Set(i *types.Interpreter, args interface{}) (interface{}, error) {
+	arg1, arg2, err := BinaryOperation(args)
+	arg, ok := arg1.(ast.Atom)
 	if !ok {
-		return nil, fmt.Errorf("Expected Atom as first argument")
+		return nil, fmt.Errorf("expected Atom as first argument")
 	}
-	v, err := i.Eval(args[1])
+	v, err := i.Eval(arg2)
 	if err != nil {
 		return nil, err
 	}
@@ -77,77 +80,84 @@ func Set(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	return i.SetState(arg.Val, v), nil
 }
 
-func SetFunc(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	if len(args) != 3 {
-		return nil, fmt.Errorf("Expected 3 arguments in func")
-	}
+func SetFunc(i *types.Interpreter, args interface{}) (interface{}, error) {
+	arg1, arg2, arg3, err := TernaryOperation(args)
 
-	arg, ok := args[0].(ast.Atom)
+	name, ok := arg1.(ast.Atom)
 	if !ok {
-		return nil, fmt.Errorf("Expected Atom as first argument")
+		return nil, fmt.Errorf("expected Atom as first argument")
 	}
 
-	lambda, err := Lambda(i, args[1:])
+	lambda, err := Lambda(i, ast.Cons{Val: arg2, Next: ast.Cons{Val: arg3, Next: ast.Empty{}}})
 	if err != nil {
 		return nil, err
 	}
 
-	return i.SetState(arg.Val, lambda), nil
+	return i.SetState(name.Val, lambda), nil
 }
 
-func Quote(_ *types.Interpreter, args []interface{}) (interface{}, error) {
-	if len(args) != 1 {
-		return nil, fmt.Errorf("Expected only 1 argument for quote")
+func Quote(_ *types.Interpreter, args interface{}) (interface{}, error) {
+	res, err := UnaryOperation(args)
+
+	if err != nil {
+		return nil, err
 	}
+
 	// Do not evaluate argument
-	return args[0], nil
+	return res, nil
 }
 
-func Eval(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	to_evaluate, err := UnaryOperation(i, args)
+func Eval(i *types.Interpreter, args interface{}) (interface{}, error) {
+	args, err := i.EvalArgs(args)
+	if err != nil {
+		return args, err
+	}
+	toEvaluate, err := UnaryOperation(args)
 	if err != nil {
 		return nil, err
 	}
-	return i.Eval(to_evaluate)
+	return i.Eval(toEvaluate)
 }
 
-func Cond(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	if l := len(args); !(l == 2 || l == 3) {
-		return nil, fmt.Errorf("Expected 2 or 3 arguments for cond")
+func Cond(i *types.Interpreter, args interface{}) (interface{}, error) {
+	if l := Len(args); !(l == 2 || l == 3) {
+		return nil, fmt.Errorf("expected 2 or 3 arguments for cond")
 	}
-	condition, err := i.Eval(args[0])
+	arg1, _ := args.(ast.Cons)
+	arg2, _ := arg1.Next.(ast.Cons)
+	condition, err := i.Eval(arg1.Val)
 	if err != nil {
 		return nil, err
 	}
 	if _, ok := condition.(bool); !ok {
-		return nil, fmt.Errorf("Expected bool in first argument of cond, but got %v", condition)
+		return nil, fmt.Errorf("expected bool in first argument of cond, but got %v", condition)
 	}
 	if condition.(bool) {
-		success_statment, err := i.Eval(args[1])
+		successStatment, err := i.Eval(arg2.Val)
 		if err != nil {
 			return nil, err
 		}
-		return success_statment, nil
+		return successStatment, nil
 	} else {
-		if len(args) == 2 {
+		if arg3, ok := arg2.Next.(ast.Cons); !ok {
 			return ast.Null{}, nil
 		} else {
-			failed_statment, err := i.Eval(args[2])
+			failedStatment, err := i.Eval(arg3.Val)
 			if err != nil {
 				return nil, err
 			}
-			return failed_statment, nil
+			return failedStatment, nil
 		}
 	}
 }
 
-func While(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	if l := len(args); l != 2 {
-		return nil, fmt.Errorf("expected 2 arguments for while, but got %v", l)
+func While(i *types.Interpreter, args interface{}) (interface{}, error) {
+	conditionStatment, bodyStatment, err := BinaryOperation(args)
+	if err != nil {
+		return nil, err
 	}
-	condition_statment, body_statment := args[0], args[1]
-	for iter_number := 0; iter_number < 10; iter_number++ {
-		condition, err := i.Eval(condition_statment)
+	for {
+		condition, err := i.Eval(conditionStatment)
 		if err != nil {
 			return nil, err
 		}
@@ -155,7 +165,10 @@ func While(i *types.Interpreter, args []interface{}) (interface{}, error) {
 			return nil, fmt.Errorf("expected bool in first argument of while, but got %v", condition)
 		}
 		if condition.(bool) {
-			i.Eval(body_statment)
+			_, err = i.Eval(bodyStatment)
+			if err != nil {
+				return nil, err
+			}
 		} else {
 			break
 		}
@@ -163,46 +176,48 @@ func While(i *types.Interpreter, args []interface{}) (interface{}, error) {
 	return ast.Null{}, nil
 }
 
-func Prog(i *types.Interpreter, args []interface{}) (interface{}, error) {
-	if l := len(args); l != 2 {
-		return nil, fmt.Errorf("expected 2 arguments for prog, but got %v", l)
+func Prog(i *types.Interpreter, args interface{}) (interface{}, error) {
+	arg1, body, err := BinaryOperation(args)
+	if err != nil {
+		return nil, err
 	}
 
-	atoms_context := []string{}
-	al, ok := args[0].(ast.List)
-	if !ok {
-		return nil, fmt.Errorf("Expected argument list and program body")
-	}
-	for _, a := range al {
-		arg, ok := a.(ast.Atom)
-		if !ok {
-			return nil, fmt.Errorf("Expected atoms in argument list")
+	var atomsContext []string
+	for _, isEmpty := arg1.(ast.Empty); !isEmpty; _, isEmpty = arg1.(ast.Empty) {
+		cons, isCons := arg1.(ast.Cons)
+		if !isCons {
+			return nil, fmt.Errorf("exepcted first argument to be list")
 		}
-		atoms_context = append(atoms_context, arg.Val)
-	}
-	body, ok := args[1].(ast.List)
-	if !ok {
-		return nil, fmt.Errorf("Expected program body")
+		arg, isAtom := cons.Val.(ast.Atom)
+		if !isAtom {
+			return nil, fmt.Errorf("expected first argument to contains only identifiers")
+		}
+		atomsContext = append(atomsContext, arg.Val)
+		arg1 = cons.Next
 	}
 
 	// Save state
-	old_state := map[string]interface{}{}
-	for _, a := range atoms_context {
+	oldState := map[string]interface{}{}
+	for _, a := range atomsContext {
 		// Save nils to delete from context later
-		old_state[a], _ = i.GetState(a)
+		oldState[a], _ = i.GetState(a)
 	}
 
 	var res interface{} = ast.Null{}
-	for _, st := range body {
-		_res, err := i.Eval(st)
-		res = _res
+	for _, isEmpty := body.(ast.Empty); !isEmpty; _, isEmpty = body.(ast.Empty) {
+		cons, isCons := body.(ast.Cons)
+		if !isCons {
+			return nil, fmt.Errorf("expected body to be list")
+		}
+		res, err = i.Eval(cons.Val)
 		if err != nil {
 			return nil, err
 		}
+		body = cons.Next
 	}
 
 	// Restore state
-	for k, v := range old_state {
+	for k, v := range oldState {
 		if v == nil {
 			i.DeleteState(k)
 		} else {
@@ -229,13 +244,15 @@ func ToString(arg interface{}) string {
 		return "null"
 	case ast.Atom:
 		return fmt.Sprint(v.Val)
-	case ast.List:
-		if val, ok := v[0].(ast.Atom); ok && val.Val == "quote" {
-			return "'" + ToString(v[1])
-		}
+	case ast.Empty:
+		return "()"
+	case ast.Cons:
 		var ret []string
-		for _, elem := range v {
-			ret = append(ret, ToString(elem))
+		var list interface{} = v
+		for _, isEmpty := list.(ast.Empty); !isEmpty; _, isEmpty = list.(ast.Empty) {
+			cons, _ := list.(ast.Cons)
+			ret = append(ret, ToString(cons.Val))
+			list = cons.Next
 		}
 		return "(" + strings.Join(ret, " ") + ")"
 	default:
@@ -243,21 +260,23 @@ func ToString(arg interface{}) string {
 	}
 }
 
-func Print(i *types.Interpreter, args []interface{}) (interface{}, error) {
+func Print(i *types.Interpreter, args interface{}) (interface{}, error) {
 	args, err := i.EvalArgs(args)
 	if err != nil {
 		return nil, err
 	}
 	var output []string
-	for _, arg := range args {
-		output = append(output, ToString(arg))
+	for _, isEmpty := args.(ast.Empty); !isEmpty; _, isEmpty = args.(ast.Empty) {
+		cons, _ := args.(ast.Cons)
+		output = append(output, ToString(cons.Val))
+		args = cons.Next
 	}
 	fmt.Println(strings.Join(output, " "))
 	return ast.Null{}, nil
 }
 
-func Input(_ *types.Interpreter, args []interface{}) (interface{}, error) {
-	if len(args) > 0 {
+func Input(_ *types.Interpreter, args interface{}) (interface{}, error) {
+	if Len(args) > 0 {
 		return nil, fmt.Errorf("expected 0 arguments for input")
 	}
 	reader := bufio.NewReader(os.Stdin)
@@ -265,5 +284,5 @@ func Input(_ *types.Interpreter, args []interface{}) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return text[:len(text)-1], nil
+	return strings.Trim(text, "\r\n\t "), nil
 }
